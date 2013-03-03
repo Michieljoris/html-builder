@@ -29,11 +29,15 @@ function getPartial(name) {
     if (cachedPartials[name]) return cachedPartials[name];
     try {
         partial = fs.readFileSync(
-            path.join(options.path, options.partials + name + '.html'),
+            path.join(options.path, options.partialsPath + name + '.html'),
             'utf8');
     } catch(e) {
         console.log("Couldn't find partial " + name);
-        partial = makeTag(name);
+        partial = makeTag('div', {
+            'class': 'row',
+            style: 'border:solid grey 1px; height:40; width:100%;' 
+            ,innerHtml: 'placeholder for ' + name
+        });
     }
     cachedPartials[name] = partial;
     return partial;
@@ -79,10 +83,12 @@ function makeScriptBlock(path, array) {
 function makeTag(tag, attrs, unary) {
     var result = '<' + tag;
     attrs = attrs || {};
+    var innerHtml = '';
     Object.keys(attrs).forEach(function(a) {
-        result += ' ' + a + '=' + '\'' + attrs[a] + '\'';
+        if (a === 'innerHtml') innerHtml = attrs[a];
+        else result += ' ' + a + '=' + '\'' + attrs[a] + '\'';
     });
-    result += '>';
+    result += '>' + innerHtml;
     if (!unary) result += '</' + tag + '>';
     return result;
 }
@@ -158,49 +164,51 @@ function render(options) {
         options.scripts.push('styles-switcher');
         options.styles.push('styles-switcher');
         options.styles.push({name: 'ribbons', id: 'ribbons'});
-        // styleSwitcherLink = makeTag('link', { media: "all",
-        //                                       href: "css/colors/default.css",
-        //                                       id: "colors",
-        //                                       rel: 'stylesheet',
-        //                                       type: 'text/css',
-        //                                       unary: true
-        //                                     });
-        
-        // //media rules for the ribbons
-        // ,'ribbons'
-        
     }
     
     var metaTags = makeUnaryTags('meta', options.metaTags);
     var styleBlock = makeStyleBlock(paths.css, options.styles);
-    // styleBlock += styleSwitcherLink;
     var scriptBlock = makeScriptBlock(paths.js, options.scripts);
     var title = '<title>' + options.title + '</title>';
     var head = wrap(title + metaTags + styleBlock + scriptBlock, 'head');
-    
-    var navigation = buildMenu(options.menu);
-    var layout = getPartial('layout');
-    var menu = { "layout-navigation": navigation };
-    layout = Plates.bind(layout, menu); 
-    layout += styleSwitcherHtml;
-    var body = wrap(layout, 'body');
-    
-    var output = head + body;
 
-    var result = htmlFormatter.format(output,{
-        indentSize: 4,
-        maxLineLength: 10,
-        indent: 2
+    var layoutIdPrefix = options.layoutIdPrefix || 'layout';
+    var layout = options.layoutPartial || 'layout';
+    layout = getPartial(layout);
+    var partials = options.partials || {};
+    Object.keys(partials).forEach(function(p) {
+        var html = getPartial(partials[p]);
+        var selector = {};
+        selector[layoutIdPrefix + '-' +  p] = html;
+        layout = Plates.bind(layout, selector); 
     });
-
-    result = '<!doctype html>\n' +
+    var menuHtml = buildMenu(options.menu);
+    var menu = { "layout-menu": menuHtml };
+    layout = Plates.bind(layout, menu); 
+    
+    // var logoHtml = getPartial('logo');
+    // var logo = { "partial-logo": logoHtml };
+    // layout = Plates.bind(layout, logo); 
+    layout += styleSwitcherHtml;
+    
+    var body = wrap(layout, 'body');
+    var output = '<!doctype html>\n' +
         '<!--[if IE 7 ]><html ng-app class="ie ie7" lang="en"><![endif]-->\n' +
         '<!--[if IE 8 ]><html ng-app class="ie ie8" lang="en"><![endif]-->\n' +
         '<!--[if (gte IE 9)|!(IE)]><!--><html ng-app lang="en"><!--<![endif]-->\n\n' + 
-        result +
+        head + body +
         '\n</html>';
-    // console.log(result);
-    saveFile(options.path + options.out, result);
+    
+    if (options.prettyPrintHtml) {
+        output = htmlFormatter.format(output,{
+            indentSize: 4,
+            maxLineLength: 10,
+            indent: 2
+        });
+    }
+
+    // console.log(prettyHtml);
+    saveFile(options.path + options.out, output);
     console.log('Created index.html');
 
     
@@ -210,20 +218,43 @@ exports.render = render;
 
 
 var menu = [
-    { label: 'Home', icon: 'home', href: '#', id: 'current',
-      sub: [
-          { label: 'Sequence Slider (Default)', href: 'index.html'}
-          ,{ label: 'Flex Slider', href: 'index2.html'}
-          ,{ label: 'CSlider', href: 'indext3.html'}
-      ]
+    { label: 'Home', icon: 'home', href: '#', id: 'current'
+      
+       ,sub: [
+           { label: 'Submenu item 1', href: 'index.html'}
+           ,{ label: 'Submenu item 2', href: 'index.html'}
+           ,{ label: 'Submenu item 2', href: 'index.html'}
+       ]
     } 
-    ,{ label: 'Home', icon: 'home', href: '#',
+    ,{ label: 'About us', icon: 'home', href: '#',
        sub: [
-           { label: 'Sequence Slider (Default)', href: 'index.html'}
-           ,{ label: 'Flex Slider', href: 'index2.html'}
-           ,{ label: 'CSlider', href: 'indext3.html'}
+           { label: 'Submenu item 1', href: 'index.html'}
+           ,{ label: 'Submenu item 2', href: 'index.html'}
+           ,{ label: 'Submenu item 2', href: 'index.html'}
        ]
      } 
+    ,{ label: 'Courses', icon: 'home', href: '#', id: 'current'
+       ,sub: [
+           { label: 'Submenu item 1', href: 'index.html'}
+           ,{ label: 'Submenu item 2', href: 'index.html'}
+           ,{ label: 'Submenu item 2', href: 'index.html'}
+       ]
+    } 
+    ,{ label: 'Professional developement', icon: 'home', href: '#', id: 'current'
+       ,sub: [
+           { label: 'Submenu item 1', href: 'index.html'}
+           ,{ label: 'Submenu item 2', href: 'index.html'}
+           ,{ label: 'Submenu item 2', href: 'index.html'}
+       ]
+    } 
+    ,{ label: 'Blog', icon: 'home', href: '#', id: 'current'
+       ,sub: [
+           { label: 'Submenu item 1', href: 'index.html'}
+           ,{ label: 'Submenu item 2', href: 'index.html'}
+           ,{ label: 'Submenu item 2', href: 'index.html'}
+       ]
+       
+    } 
 ];
 
 
@@ -292,8 +323,10 @@ var options =  {
         ,'selectnav'
         
         // The Responsive Slider with Advanced CSS3 Transitions
-        // ,'sequence.jquery-min'
-        // ,'sequence'
+        ,'sequence.jquery-min'
+        ,'sequence'
+        
+        ,'twitter'
         
         // Parallax Content Slider with CSS3 and jQuery A content
         // slider with delayed animations and background parallax effect
@@ -322,9 +355,17 @@ var options =  {
         // is to achieve a small width
         ,'override'
         
-        //colors, with extra attrs so styles switcher can find it
-        ,{ name: 'colors/default', media: 'all', id: 'colors'}
+        ,'message-top'
         
+        //colors, with extra attrs so styles switcher can find it
+        ,{ name: 'colors/dirty-green', media: 'all', id: 'colors'}
+        
+        //footer
+        ,'footer'
+        ,'photo-stream'
+        ,'footer-twitter-widget'
+        
+        ,'entry-title'
         //Css for flex-slider
         // ,'flex-slider'
         
@@ -335,9 +376,7 @@ var options =  {
         
         // Theme created for use with Sequence.js
         // Theme: Modern Slide In
-        // 'sequence',
-        
-        ,'colors/default'
+        ,'sequence'
         
         //Custom styles
         ,'style'
@@ -345,8 +384,20 @@ var options =  {
     ,styleSwitcher: true
     ,menu: menu
     ,path: '/home/michieljoris/www/firstdoor/'
-    ,layout: 'layout'
-    ,partials: 'partials/' 
+    ,partialsPath: 'partials/' 
+    ,layoutPartial: 'layout'
+    ,layoutIdPrefix: 'layout'
+    ,partials: {
+        logo: 'logo'
+        ,contact: 'contact'
+        ,message: 'message'
+        ,slider: 'sequence-slider'
+        ,slogan: 'slogan'
+        // ,sections: 'sections'
+        ,'footer-top': 'footer-top'
+        ,'footer-bottom': 'footer-bottom'
+    }
+    ,prettyPrintHtml: true
     ,out: 'index.html'
 };
 
