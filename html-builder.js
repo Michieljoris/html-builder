@@ -136,7 +136,7 @@ function buildMenu(menu) {
             li += '</ul>';
         }
         
-        li +='</li';
+        li +='</li>';
         return li;
     }
     
@@ -163,7 +163,7 @@ function render(options) {
         styleSwitcherHtml = getPartial('styles-switcher');
         options.scripts.push('styles-switcher');
         options.styles.push('styles-switcher');
-        options.styles.push({name: 'ribbons', id: 'ribbons'});
+        // options.styles.push({name: 'ribbons', id: 'ribbons'});
     }
     
     var metaTags = makeUnaryTags('meta', options.metaTags);
@@ -207,7 +207,6 @@ function render(options) {
         });
     }
 
-    // console.log(prettyHtml);
     saveFile(options.path + options.out, output);
     console.log('Created index.html');
 
@@ -233,21 +232,21 @@ var menu = [
            ,{ label: 'Submenu item 2', href: 'index.html'}
        ]
      } 
-    ,{ label: 'Courses', icon: 'home', href: '#', id: 'current'
+    ,{ label: 'Courses', icon: 'home', href: '#'
        ,sub: [
            { label: 'Submenu item 1', href: 'index.html'}
            ,{ label: 'Submenu item 2', href: 'index.html'}
            ,{ label: 'Submenu item 2', href: 'index.html'}
        ]
     } 
-    ,{ label: 'Professional developement', icon: 'home', href: '#', id: 'current'
+    ,{ label: 'Professional developement', icon: 'home', href: '#'
        ,sub: [
            { label: 'Submenu item 1', href: 'index.html'}
            ,{ label: 'Submenu item 2', href: 'index.html'}
            ,{ label: 'Submenu item 2', href: 'index.html'}
        ]
     } 
-    ,{ label: 'Blog', icon: 'home', href: '#', id: 'current'
+    ,{ label: 'Blog', icon: 'home', href: '#'
        ,sub: [
            { label: 'Submenu item 1', href: 'index.html'}
            ,{ label: 'Submenu item 2', href: 'index.html'}
@@ -259,11 +258,11 @@ var menu = [
 
 
 var options =  {
-    // paths: {
-    //     js: 'js'
-    //     ,css: 'css'
-    //     ,font: 'font'
-    // },
+    paths: {
+        js: 'js'
+        ,css: 'css'
+        ,font: 'font'
+    },
     title : 'mytitle',
     metaTags : [
         { charset:'utf-8' },
@@ -334,7 +333,64 @@ var options =  {
     ],
     // fonts: [
     // ],
+    stylesorig: [
+        'css439e' 
+        ,'style',
+        'style-responsive',
+        'override',
+        {name: 'ribbons', id: 'ribbons'},
+        'sequence'
+        ,{ name: 'colors/default', media: 'all', id: 'colors'}
+    ],
+    // stylesOrigOrder : [
     styles : [
+        //google font for mobile ?
+        'css439e' 
+        //css framework
+        ,"bootstrap"
+        
+        //The iconic font designed for use with Twitter Bootstrap
+        ,"font-awesome"
+        
+        //FancyBox is a tool for displaying images, html content and
+        // multi-media in a Mac-style "lightbox" that floats overtop
+        // of web page, the css part
+        ,"fancybox"
+        
+        //Custom styles
+        ,'style'
+        
+        /* Turns menu classed ul, li structure into a dropdown menu  */
+        ,"navigation"
+        
+        ,'misc'
+        
+        //footer
+        ,'photo-stream'
+        ,'footer-twitter-widget'
+        
+        ,'entry-title'
+        ,'footer'
+        ,'message-top'
+        //Css for flex-slider
+        // ,'flex-slider'
+        ,'style-responsive' 
+        // This file overrides the default bootstrap. The reason
+        // is to achieve a small width
+        ,'override'
+        
+        ,{name: 'ribbons', id: 'ribbons'}
+        
+        // Theme created for use with Sequence.js
+        // Theme: Modern Slide In
+        ,'sequence'
+        //extra responsive rules
+        
+        //colors, with extra attrs so styles switcher can find it
+        ,{ name: 'colors/default', media: 'all', id: 'colors'}
+        // ,{ name: 'colors/default', media: 'all', id: 'colors'}
+    ]
+    ,stylesMine : [
         //google font for mobile ?
         'css439e' 
         
@@ -345,8 +401,6 @@ var options =  {
         
         ,"navigation"
         
-        //extra responsive rules
-        ,'style-responsive' 
         
         //The iconic font designed for use with Twitter Bootstrap
         ,"font-awesome"
@@ -355,19 +409,18 @@ var options =  {
         // is to achieve a small width
         ,'override'
         
+        ,{name: 'ribbons', id: 'ribbons'}
         ,'message-top'
         
-        //colors, with extra attrs so styles switcher can find it
-        ,{ name: 'colors/dirty-green', media: 'all', id: 'colors'}
         
         //footer
-        ,'footer'
         ,'photo-stream'
         ,'footer-twitter-widget'
         
         ,'entry-title'
         //Css for flex-slider
         // ,'flex-slider'
+        
         
         //FancyBox is a tool for displaying images, html content and
         // multi-media in a Mac-style "lightbox" that floats overtop
@@ -380,6 +433,15 @@ var options =  {
         
         //Custom styles
         ,'style'
+        
+        ,'misc'
+        ,'style-responsive' 
+        ,'footer'
+        //extra responsive rules
+        
+        //colors, with extra attrs so styles switcher can find it
+        ,{ name: 'colors/dirty-green', media: 'all', id: 'colors'}
+        // ,{ name: 'colors/default', media: 'all', id: 'colors'}
     ]
     ,styleSwitcher: true
     ,menu: menu
@@ -393,11 +455,11 @@ var options =  {
         ,message: 'message'
         ,slider: 'sequence-slider'
         ,slogan: 'slogan'
-        // ,sections: 'sections'
-        ,'footer-top': 'footer-top'
-        ,'footer-bottom': 'footer-bottom'
+        ,sections: 'sections'
+        ,'footer': 'footer'
+        // ,'footer-bottom': 'footer-bottom'
     }
-    ,prettyPrintHtml: true
+    ,prettyPrintHtml: false
     ,out: 'index.html'
 };
 

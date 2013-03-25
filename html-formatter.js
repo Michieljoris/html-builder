@@ -1,7 +1,12 @@
+/*global exports:false process:false require:false*/
+/*jshint strict:false unused:true smarttabs:true eqeqeq:true immed: true undef:true*/
+/*jshint maxparams:6 maxcomplexity:10 maxlen:190 devel:true*/
+// var sys = require('sys');
 var htmlparser = require("htmlparser2");
 
 function formatter(html, options) {
     "use strict";
+    options = options || {};
     var indentSize = options.indentSize || 4;
     var maxLineLength = options.maxLineLength || 10; 
     var defaultIndent = options.indent || 0;
@@ -41,7 +46,8 @@ function formatter(html, options) {
         },
         ontext: function( text ) {
             var ind = ''; 
-            if (text && text.length > 0 && text[0] !== '\n') {
+            if (text && text.length > 0) {
+                text = text.split('\n').join('');
                 if (text.length > maxLineLength) {
                     lastTag = '';
                     ind = '\n' + indent.slice(0,n);
@@ -63,3 +69,15 @@ function formatter(html, options) {
 }
 
 exports.format = formatter;
+
+
+
+// try {
+//     var partial = require('fs').readFileSync(
+//         '/home/michieljoris/www/firstdoor/partials/footer-bottom.html',
+//         'utf8');
+//     console.log(partial);
+//     console.log(formatter(partial));
+// } catch(e) {
+//     console.log("Couldn't find file ",e );
+//     }
