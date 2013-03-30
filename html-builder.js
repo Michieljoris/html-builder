@@ -1,13 +1,26 @@
-/*global exports:false process:false require:false*/
+#!/usr/bin/env node
+
+/*global exports:false require:false process:false*/
 /*jshint strict:false unused:true smarttabs:true eqeqeq:true immed: true undef:true*/
 /*jshint maxparams:6 maxcomplexity:10 maxlen:190 devel:true*/
 // var sys = require('sys');
 
 var Plates = require('plates');
 var fs = require('fs');
-var path = require('path');
+// var path = require('path');
 var htmlFormatter = require('./html-formatter.js');
+var md = require("node-markdown").Markdown;
+var filemon = require('filemonitor');
+// var sys = require('sys');
+// var exec = require('child_process').exec;
+var argv = require('optimist').argv;
+
+
 var cachedPartials = {};
+var buildData;
+var log;
+
+
 
 function saveFile(name, str){
     fs.writeFileSync(
@@ -17,30 +30,35 @@ function saveFile(name, str){
         'utf8');
 }
 
-function trailWith(str, trail) {
-    return str ? (str +
-                  (str.substr(str.length-trail.length, str.length-1) !==
-                   trail ? trail : '')) : undefined;
+function endsWith(str, trail) {
+    return (str.substr(str.length-trail.length, str.length-1) === trail);
 }
-    
+
+
+function trailWith(str, trail) {
+    return str ? (str + (!endsWith(str, trail) ? trail : '')) : undefined;
+}
+
 
 function getPartial(name) {
-    var partial; 
-    if (cachedPartials[name]) return cachedPartials[name];
+    var partial, path; 
+    var isMarkdown = endsWith(name, '.md') || endsWith(name, '.markdown');
+    // if (cachedPartials[name]) return cachedPartials[name];
+    if (!isMarkdown) name = trailWith(name, '.html');
     try {
-        partial = fs.readFileSync(
-            path.join(options.path, options.partialsPath + name + '.html'),
-            'utf8');
+        path = buildData.basePath + buildData.partialsPath + name;
+        partial = fs.readFileSync(path, 'utf8');
     } catch(e) {
-        console.log("Couldn't find partial " + name);
+        console.log("Couldn't find partial " + buildData.partialsPath + name);
         partial = makeTag('div', {
             'class': 'row',
-            style: 'border:solid grey 1px; height:40; width:100%;' 
+            style: 'margin-left: 0; padding-left:10px; border:solid grey 1px; height:40; width:100%;' 
             ,innerHtml: 'placeholder for ' + name
         });
     }
+    if (isMarkdown) partial = md(partial);
     cachedPartials[name] = partial;
-    return partial;
+    return partial;   
 }
 
 function makeStyleBlock(path, array) {
@@ -52,18 +70,23 @@ function makeStyleBlock(path, array) {
         if (e instanceof Object) {
             e.rel = 'stylesheet';
             e.type = 'text/css';
-            e.href = trailWith(path + e.name, '.css');
+            if (e.indexOf('http') === 0)
+                e.href = trailWith(e.name, '.css');
+            else e.href = trailWith(path + e.name, '.css');
             delete e.name;
             result += makeTag('link', e);
         }
         else {
             e = trailWith(e, '.css');
-            var data = { data: path + e };
+            var data;
+            if (e.indexOf('http') === 0)
+                data = { data: e };
+            else data = { data: path + e };
             result += Plates.bind(style, data, map);
         }
     });
     
-    return result;   
+    return result + '\n';   
 }
 
 function makeScriptBlock(path, array) {
@@ -76,7 +99,7 @@ function makeScriptBlock(path, array) {
             var data = { data: path + e };
             result += Plates.bind(script, data, map);
         });
-    return result;   
+    return result + '\n';   
 }
 
 
@@ -90,7 +113,8 @@ function makeTag(tag, attrs, unary) {
     });
     result += '>' + innerHtml;
     if (!unary) result += '</' + tag + '>';
-    return result;
+    
+    return result;   
 }
 
 function makeUnaryTags(tag, attrCollection) {
@@ -99,14 +123,14 @@ function makeUnaryTags(tag, attrCollection) {
     attrCollection.forEach(function(attrs) {
         result += makeTag(tag, attrs, true);
     });
-    return result;
+    return  result + '\n';   
 }
 
 
 function wrap(string, tag) {
     var partial = getPartial(tag);
     
-        var data = {};
+    var data = {};
     data[tag] = string;
     return Plates.bind(partial, data); 
 }
@@ -117,8 +141,7 @@ function buildMenu(menu) {
     menu = menu || [];
     
     var str = '<div class="ie-dropdown-fix" > <div id="navigation">' +
-            '<div class="left-corner"></div> <div class="right-corner">' +
-        '</div> <ul id="nav" class="menu">';
+        '<ul id="nav" class="menu sf-menu">';
     
     function makeLi(entry) {
         
@@ -145,51 +168,125 @@ function buildMenu(menu) {
     });
     
 
-    var end = '</ul></diwv><div class="clear"></div>  </div></div>';
+    var end = '</ul></div></div><div class="clear"></div>';
     str += end;   
     return str;
 }
-function render(options) {
-    var paths = options.paths || {};
+
+
+function makeSequenceSlider(data) {
+    var js = [
+            'sequence.jquery-min'
+            ,'startSequence'
+    ];
+    var css = ['slidein-seqtheme'];
+    data.scripts = data.scripts.concat(js);
+    data.styles = data.styles.concat(css);
+    //TODO
+}
+
+function makeFlexSlider(data) {
+    var js = [
+        'jquery.flexslider-min',
+        'startFlex'
+    ];
+    var css = ['flexslider'];
+    data.scripts = data.scripts.concat(js);
+    data.styles = data.styles.concat(css);
+    function makeSlide(s) {
+        return '<li><img src=' + s.url + 
+            '><div class="slide-caption"><h3>' + 
+            s.title + '</h3> </div> </li>';
+    }
+        var slides = data.slides; 
+    var str ='<div class="flexslider"><ul class="slides">';
+    slides.forEach(function(s) {
+        str += makeSlide(s);   
+    });
+    str += '</ul> </div>';
+    return str;
+}
+
+function makeCameraSlider(data) {
+    var js = [
+        'jquery.mobile.customized.min'
+        ,'jquery.easing.1.3'
+        ,'camera.min'
+        ,'startCamera'
+    ];
+    var css = ['camera'];
+    data.scripts = data.scripts.concat(js);
+    data.styles = data.styles.concat(css);
+    
+    function makeSlide(s) {
+        return '<div data-src=' + s.url +
+            '><div class="camera_caption fadeFromLeft"><h4>' +
+            s.title + '</h4>' + s.subtitle + '</div></div>'; 
+    }
+    var slides = data.slides; 
+    var str= '<div id="camera" class="camera_wrap">';
+    slides.forEach(function(s) {
+        str += makeSlide(s);   
+    });
+    str+='</div> </div>';
+    return str;
+}
+
+var makeSlideShow = {
+    camera: makeCameraSlider,
+    flex: makeFlexSlider,
+    sequence: makeSequenceSlider
+};
+
+function render() {
+    var paths = buildData.paths || {};
     paths.js = trailWith(paths.js, '/') || 'js/';
     paths.css = trailWith(paths.css, '/') || 'css/';
+    var slideShowHtml = '';
+    if (buildData.slideShow)
+        slideShowHtml = makeSlideShow[buildData.slideShow](buildData);
 
-    options.styles = options.styles || [];
-    options.scripts = options.scripts || [];
+    buildData.styles = buildData.styles || [];
+    buildData.scripts = buildData.scripts || [];
     
-    var styleSwitcherHtml = '';
+    // var styleSwitcherHtml = '';
     // var styleSwitcherLink = '';
-    if (options.styleSwitcher) {
-        styleSwitcherHtml = getPartial('styles-switcher');
-        options.scripts.push('styles-switcher');
-        options.styles.push('styles-switcher');
-        // options.styles.push({name: 'ribbons', id: 'ribbons'});
-    }
+    // if (buildData.styleSwitcher) {
+    //     styleSwitcherHtml = getPartial('styles-switcher');
+    //     buildData.scripts.push('styles-switcher');
+    //     buildData.styles.push('styles-switcher');
+    //     // options.styles.push({name: 'ribbons', id: 'ribbons'});
+    // }
     
-    var metaTags = makeUnaryTags('meta', options.metaTags);
-    var styleBlock = makeStyleBlock(paths.css, options.styles);
-    var scriptBlock = makeScriptBlock(paths.js, options.scripts);
-    var title = '<title>' + options.title + '</title>';
+    var metaTags = makeUnaryTags('meta', buildData.metaTags);
+    var styleBlock = makeStyleBlock(paths.css, buildData.styles);
+    var scriptBlock = makeScriptBlock(paths.js, buildData.scripts);
+    var title = '<title>' + buildData.title + '</title>';
     var head = wrap(title + metaTags + styleBlock + scriptBlock, 'head');
 
-    var layoutIdPrefix = options.layoutIdPrefix || 'layout';
-    var layout = options.layoutPartial || 'layout';
+    var layoutIdPrefix = buildData.layoutIdPrefix || 'layout';
+    var layout = buildData.layoutPartial || 'layout';
     layout = getPartial(layout);
-    var partials = options.partials || {};
+    
+    var partials = buildData.partials || {};
+    
     Object.keys(partials).forEach(function(p) {
         var html = getPartial(partials[p]);
         var selector = {};
         selector[layoutIdPrefix + '-' +  p] = html;
         layout = Plates.bind(layout, selector); 
     });
-    var menuHtml = buildMenu(options.menu);
+    var menuHtml = buildMenu(buildData.menu);
     var menu = { "layout-menu": menuHtml };
     layout = Plates.bind(layout, menu); 
+    
+    var slideShow = { "layout-slideShow": slideShowHtml };
+    layout = Plates.bind(layout, slideShow); 
     
     // var logoHtml = getPartial('logo');
     // var logo = { "partial-logo": logoHtml };
     // layout = Plates.bind(layout, logo); 
-    layout += styleSwitcherHtml;
+    // layout += styleSwitcherHtml;
     
     var body = wrap(layout, 'body');
     var output = '<!doctype html>\n' +
@@ -199,7 +296,7 @@ function render(options) {
         head + body +
         '\n</html>';
     
-    if (options.prettyPrintHtml) {
+    if (buildData.prettyPrintHtml) {
         output = htmlFormatter.format(output,{
             indentSize: 4,
             maxLineLength: 10,
@@ -207,261 +304,101 @@ function render(options) {
         });
     }
 
-    saveFile(options.path + options.out, output);
-    console.log('Created index.html');
+    saveFile(buildData.basePath + buildData.out, output);
+    log('Created ' + buildData.out);
 
     
 }
 
-exports.render = render;
+function evalFile(fileName) {
+    var file;
+    try { file = fs.readFileSync(fileName, 'utf8');
+          // console.log(file);
+          eval(file);
+          return exports;
+        } catch (e) {
+            console.log('Error reading data file: ', e);
+            return undefined;
+        }
+} 
+
+function monitor(buildjsfile, target) {
+    var isHtml = /.*\.html?$/;
+    var isMdown = /.*\.mdown?$/;
+    var isMarkdown = /.*\.markdown?$/;
+    var isMd = /.*\.md?$/;
+    // function puts(error, stdout, stderr) { sys.puts(stdout); }
+    // log(datajs);
+
+    var lastEvent = {
+        timestamp: '',
+        filename: ''
+    };
+    
+    var onFileEvent = function (ev) {
+        // var filetype = ev.isDir ? "directory" : "file";
+        // log(ev.filename);
+        var i = ev.filename.lastIndexOf('/');
+        var dir = ev.filename.slice(0, i+1);
+        // log(dir, ev.filename);
+        if (ev.filename === buildjsfile ||
+            (dir === target && (
+                isMdown.test(ev.filename) ||
+                isMarkdown.test(ev.filename) ||
+               isMd.test(ev.filename) || 
+            isHtml.test(ev.filename)))) {
+            // log(ev.timestamp);
+            if (lastEvent.timestamp.toString() === ev.timestamp.toString() &&
+                lastEvent.filename === ev.filename) return;
+            lastEvent = ev;
+            log('Modified>> ' + ev.filename);
+            // log('Building ' + buildData.out);
+            // exec("lispy -r " + ev.filename, puts);
+            buildData = evalFile(file);
+            buildData.partialsPath = trailWith( buildData.partialsPath, '/');
+            // log(buildData.title);
+            
+            render();
+            // log("Event " + ev.eventId + " was captured for " +
+            //             filetype + " " + ev.filename + " on time: " + ev.timestamp.toString());
+            // }
+        }
+    };
+    var i = buildjsfile.lastIndexOf('/');
+    var dir = buildjsfile.slice(0, i+1);
+    log(dir);
+    var options = {
+        target: [dir, target],
+        // recursive: true,
+        listeners: {
+            modify: onFileEvent
+        }
+    };
+    
+    log('Watching ' + target + ' and ' + buildjsfile);
+    filemon.watch(options);
+} 
+
+if (argv.h || argv.help) {
+    console.log([
+        "usage: html-builder [pathToData.jsFile]"
+    ].join('\n'));
+    process.exit();
+}
+
+var file = (argv._ && argv._[0]) || argv.file || process.cwd() + '/data.js';
+    
+try {
+    buildData = evalFile(file);
+    buildData.partialsPath = trailWith( buildData.partialsPath, '/');
+    
+    log = !buildData.verbose ?  function () {}: function() {
+        console.log.apply(console, arguments); };
+    log('Cwd: ' + process.cwd());
+    render();
+    if (buildData.monitor) monitor(file, buildData.basePath + buildData.partialsPath);
+} catch (e) {
+    console.log(file + ' doesn\'t exist!!');
+}
 
 
-var menu = [
-    { label: 'Home', icon: 'home', href: '#', id: 'current'
-      
-       ,sub: [
-           { label: 'Submenu item 1', href: 'index.html'}
-           ,{ label: 'Submenu item 2', href: 'index.html'}
-           ,{ label: 'Submenu item 2', href: 'index.html'}
-       ]
-    } 
-    ,{ label: 'About us', icon: 'home', href: '#',
-       sub: [
-           { label: 'Submenu item 1', href: 'index.html'}
-           ,{ label: 'Submenu item 2', href: 'index.html'}
-           ,{ label: 'Submenu item 2', href: 'index.html'}
-       ]
-     } 
-    ,{ label: 'Courses', icon: 'home', href: '#'
-       ,sub: [
-           { label: 'Submenu item 1', href: 'index.html'}
-           ,{ label: 'Submenu item 2', href: 'index.html'}
-           ,{ label: 'Submenu item 2', href: 'index.html'}
-       ]
-    } 
-    ,{ label: 'Professional developement', icon: 'home', href: '#'
-       ,sub: [
-           { label: 'Submenu item 1', href: 'index.html'}
-           ,{ label: 'Submenu item 2', href: 'index.html'}
-           ,{ label: 'Submenu item 2', href: 'index.html'}
-       ]
-    } 
-    ,{ label: 'Blog', icon: 'home', href: '#'
-       ,sub: [
-           { label: 'Submenu item 1', href: 'index.html'}
-           ,{ label: 'Submenu item 2', href: 'index.html'}
-           ,{ label: 'Submenu item 2', href: 'index.html'}
-       ]
-       
-    } 
-];
-
-
-var options =  {
-    paths: {
-        js: 'js'
-        ,css: 'css'
-        ,font: 'font'
-    },
-    title : 'mytitle',
-    metaTags : [
-        { charset:'utf-8' },
-        { name: "viewport"
-          ,content: "width=device-width, initial-scale=1, maximum-scale=1"
-        } ],
-    scripts : [
-        'jquery',
-        
-        // Modernizr is a small JavaScript library that detects the
-        // availability of native implementations for next-generation
-        // web technologies, i.e. features that stem from the HTML5
-        // and CSS3 specifications. Many of these features are already
-        // implemented in at least one major browser (most of them in
-        // two or more), and what Modernizr does is, very simply, tell
-        // you whether the current browser has this feature natively
-        // implemented or not.
-        'modernizr',
-        
-        // An awesome, fully responsive jQuery slider toolkit.
-        // 'flexslider',
-        
-        // 'twitter',//??
-        
-        //FancyBox is a tool for displaying images, html content and
-        // multi-media in a Mac-style "lightbox" that floats overtop
-        // of web page.
-        // 'fancybox',
-        
-        // An exquisite jQuery plugin for magical layouts
-        // Features:
-        // Layout modes: Intelligent, dynamic layouts that can’t be achieved with CSS alone.
-        // Filtering: Hide and reveal item elements easily with jQuery selectors.
-        // Sorting: Re-order item elements with sorting. Sorting data
-        // can be extracted from just about anything.
-        // Interoperability: features can be utilized together for a
-        // coheive experience.
-        // Progressive enhancement: Isotope’s animation engine takes
-        // advantage of the best browser features when available — CSS
-        // transitions and transforms, GPU acceleration — but will
-        // also fall back to JavaScript animation for lesser browsers.
-        // 'isotope',
-        
-        //css framework
-        'bootstrap'
-        
-        // A lightweight, easy-to-use jQuery plugin for fluid width video embeds.       
-        // ,'jquery.fitvids'
-        
-        //Tweaks: Menu slide, responsive menu, image overlay, fancybox and icon spin
-        // ,'custom'
-        
-        //Tweaks: Menu slide, responsive menu
-        ,'menu-slide'
-        
-        //* Converts your <ul>/<ol> navigation into a dropdown list for small screens
-        ,'selectnav'
-        
-        // The Responsive Slider with Advanced CSS3 Transitions
-        ,'sequence.jquery-min'
-        ,'sequence'
-        
-        ,'twitter'
-        
-        // Parallax Content Slider with CSS3 and jQuery A content
-        // slider with delayed animations and background parallax effect
-        // ,'jquery.cslider.js'
-    ],
-    // fonts: [
-    // ],
-    stylesorig: [
-        'css439e' 
-        ,'style',
-        'style-responsive',
-        'override',
-        {name: 'ribbons', id: 'ribbons'},
-        'sequence'
-        ,{ name: 'colors/default', media: 'all', id: 'colors'}
-    ],
-    // stylesOrigOrder : [
-    styles : [
-        //google font for mobile ?
-        'css439e' 
-        //css framework
-        ,"bootstrap"
-        
-        //The iconic font designed for use with Twitter Bootstrap
-        ,"font-awesome"
-        
-        //FancyBox is a tool for displaying images, html content and
-        // multi-media in a Mac-style "lightbox" that floats overtop
-        // of web page, the css part
-        ,"fancybox"
-        
-        //Custom styles
-        ,'style'
-        
-        /* Turns menu classed ul, li structure into a dropdown menu  */
-        ,"navigation"
-        
-        ,'misc'
-        
-        //footer
-        ,'photo-stream'
-        ,'footer-twitter-widget'
-        
-        ,'entry-title'
-        ,'footer'
-        ,'message-top'
-        //Css for flex-slider
-        // ,'flex-slider'
-        ,'style-responsive' 
-        // This file overrides the default bootstrap. The reason
-        // is to achieve a small width
-        ,'override'
-        
-        ,{name: 'ribbons', id: 'ribbons'}
-        
-        // Theme created for use with Sequence.js
-        // Theme: Modern Slide In
-        ,'sequence'
-        //extra responsive rules
-        
-        //colors, with extra attrs so styles switcher can find it
-        ,{ name: 'colors/default', media: 'all', id: 'colors'}
-        // ,{ name: 'colors/default', media: 'all', id: 'colors'}
-    ]
-    ,stylesMine : [
-        //google font for mobile ?
-        'css439e' 
-        
-        //css framework
-        ,"bootstrap"
-        
-        /* Turns menu classed ul, li structure into a dropdown menu  */
-        
-        ,"navigation"
-        
-        
-        //The iconic font designed for use with Twitter Bootstrap
-        ,"font-awesome"
-        
-        // This file overrides the default bootstrap. The reason
-        // is to achieve a small width
-        ,'override'
-        
-        ,{name: 'ribbons', id: 'ribbons'}
-        ,'message-top'
-        
-        
-        //footer
-        ,'photo-stream'
-        ,'footer-twitter-widget'
-        
-        ,'entry-title'
-        //Css for flex-slider
-        // ,'flex-slider'
-        
-        
-        //FancyBox is a tool for displaying images, html content and
-        // multi-media in a Mac-style "lightbox" that floats overtop
-        // of web page, the css part
-        // ,"fancybox"
-        
-        // Theme created for use with Sequence.js
-        // Theme: Modern Slide In
-        ,'sequence'
-        
-        //Custom styles
-        ,'style'
-        
-        ,'misc'
-        ,'style-responsive' 
-        ,'footer'
-        //extra responsive rules
-        
-        //colors, with extra attrs so styles switcher can find it
-        ,{ name: 'colors/dirty-green', media: 'all', id: 'colors'}
-        // ,{ name: 'colors/default', media: 'all', id: 'colors'}
-    ]
-    ,styleSwitcher: true
-    ,menu: menu
-    ,path: '/home/michieljoris/www/firstdoor/'
-    ,partialsPath: 'partials/' 
-    ,layoutPartial: 'layout'
-    ,layoutIdPrefix: 'layout'
-    ,partials: {
-        logo: 'logo'
-        ,contact: 'contact'
-        ,message: 'message'
-        ,slider: 'sequence-slider'
-        ,slogan: 'slogan'
-        ,sections: 'sections'
-        ,'footer': 'footer'
-        // ,'footer-bottom': 'footer-bottom'
-    }
-    ,prettyPrintHtml: false
-    ,out: 'index.html'
-};
-
-
-render(options);
