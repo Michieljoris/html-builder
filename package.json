@@ -8,7 +8,8 @@
 	"htmlparser2": "~2.5.2",
 	"node-markdown": "*",
 	"filemonitor": "*",
-	"optimist": "*"
+	"optimist": "*",
+	"colors": "*"
     },
     "devDependencies": {},
     "scripts": {

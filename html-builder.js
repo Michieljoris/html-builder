@@ -15,6 +15,7 @@ var filemon = require('./filemonitor');
 // var sys = require('sys');
 // var exec = require('child_process').exec;
 var argv = require('optimist').argv;
+var colors = require('colors');
 
 
 var log;
@@ -64,7 +65,7 @@ function getPartial(partialsPath, name) {
         // console.log("Couldn't find partial " + partialsPath + name);
     }
     if (!partial) {
-        log("Couldn't find partial " + partialsPath + name);
+        log("Couldn't find partial ".red + partialsPath + name);
         partial = makeTag('div', {
             'class': 'row',
             style: 'margin-left: 0; padding-left:10px; border:solid grey 1px; height:40; width:100%;' 
@@ -248,7 +249,7 @@ function makeCameraSlider(slides) {
         'jquery.mobile.customized.min'
         ,'jquery.easing.1.3'
         ,'camera.min'
-        ,'startCamera'
+        // ,'startCamera'
     ];
     var css = ['camera'];
     addTo_Blocks(js, css);
@@ -304,13 +305,15 @@ function render(args) {
             indent: 2
         });
     }
+    var str = args.src.green;
     if (args.out) {
-        saveFile(args.baseDir + args.out, template);   
-        log('Created ' + args.out);
+        saveFile(args.root + args.pathOut + args.out, template);   
+        str+= ' >> ' + args.out.blue;
+        // log('>>' + args.out);
     }
+    log(str);
     // log(template);
-    log('Processed template ' + args.src);
-    log('------------------------------');
+    
     return template;
 }
 
@@ -366,12 +369,12 @@ function evalFile(fileName) {
           eval(file);
           return exports;
         } catch (e) {
-            console.log('Error reading data file: ', e);
+            console.log('Error reading data file: '.red, e);
             return undefined;
         }
 } 
 
-function monitor(dataFileName, target) {
+function monitor(dataFileName) {
     var isHtml = /.*\.html?$/;
     var isMdown = /.*\.mdown?$/;
     var isMarkdown = /.*\.markdown?$/;
@@ -387,20 +390,25 @@ function monitor(dataFileName, target) {
     var onFileEvent = function (ev) {
         // var filetype = ev.isDir ? "directory" : "file";
         // log(ev.filename);
-        var i = ev.filename.lastIndexOf('/');
-        var dir = ev.filename.slice(0, i+1);
+        // var i = ev.filename.lastIndexOf('/');
+        // var dir = ev.filename.slice(0, i+1);
         // log(dir, ev.filename);
         if (ev.filename === dataFileName ||
-            (target.indexOf(dir) !== -1 && (
-                isMdown.test(ev.filename) ||
-                isMarkdown.test(ev.filename) ||
-               isMd.test(ev.filename) || 
-                    isHtml.test(ev.filename)))) {
+            // (target.indexOf(dir) !== -1 && (
+            isMdown.test(ev.filename) ||
+            isMarkdown.test(ev.filename) ||
+            isMd.test(ev.filename) || 
+            isHtml.test(ev.filename)
+            // || true
+           )
+            
+            // ))
+        {
             // log(ev.timestamp);
             if (lastEvent.timestamp.toString() === ev.timestamp.toString() &&
                 lastEvent.filename === ev.filename) return;
             lastEvent = ev;
-            log('Modified>> ' + ev.filename);
+            log('Modified>> '.green + ev.filename.yellow);
             filemon.stop(function() {
                 build();
                 
@@ -417,19 +425,19 @@ function monitor(dataFileName, target) {
             // }
         }
     };
-    var i = dataFileName.lastIndexOf('/');
-    var dir = dataFileName.slice(0, i+1);
-    target.push(dir);
-    log(dir);
+    // var i = dataFileName.lastIndexOf('/');
+    // var dir = dataFileName.slice(0, i+1);
+    // target.push(dir);
+    // log(dir);
     var options = {
-        target: target,
+        target: monitoredDirs,
         // recursive: true,
         listeners: {
             modify: onFileEvent
         }
     };
     
-    log('Watching ' + target + ' and ' + dataFileName);
+    log('Watching ' + monitoredDirs.toString());
     filemon.watch(options); 
 } 
 
@@ -453,27 +461,31 @@ function makePartial(name, args) {
 var testing = true;
 function build() {
     // var dataFileName = (argv._ && argv._[0]) || argv.file || '/home/michieljoris/www/firstdoor/data.js';
-    var dataFileName = (argv._ && argv._[0]) || argv.file || process.cwd() + '/data.js';
+    var dataFileName = (argv._ && argv._[0]) || argv.file || process.cwd() + '/build/recipe.js';
     
     // try {
     var buildData = evalFile(dataFileName);
     if (!buildData) throw Error('buildData is undefined!!');
+    var paths = buildData.paths = buildData.paths || {};
+    paths.root = trailWith(paths.root || process.cwd(), '/');
+    paths.partials = trailWith( paths.partials || 'build', '/');
+    paths.monitor = trailWith( paths.monitor || 'build', '/');
+    paths.out = trailWith( paths.out || 'built', '/');
     
-    buildData.baseDir = trailWith(buildData.baseDir || process.cwd(), '/');
-    buildData.partialsDir = trailWith( buildData.partialsDir || 'partials', '/');
-    buildData.tagIdPostfix = buildData.tagIdPostfix || '__';
+    buildData.tagIdPostfix = buildData.tagIdPostfix || '--';
         
     log = !buildData.verbose || !testing ?  function () {}: function() {
         console.log.apply(console, arguments); };
     log('Cwd: ' + process.cwd());
-    log('Base dir: ' + buildData.baseDir);
+    log('Root dir: ' + buildData.paths.root);
     
-    var partialsDir = buildData.baseDir + buildData.partialsDir;
+    var partialsDir = buildData.paths.root + buildData.paths.partials;
     builders.template.defArgs = {
-        baseDir: buildData.baseDir,
+        root: buildData.paths.root,
         partialsDir: partialsDir,
         tagIdPostfix: buildData.tagIdPostfix,
-        prettyPrintHtml: buildData.prettyPrintHtml
+        prettyPrintHtml: buildData.prettyPrintHtml,
+        pathOut: paths.out
     };
     
     builders.linkBlock.defArgs = {
@@ -488,12 +500,17 @@ function build() {
     
     monitoredDirs = [];
     monitoredDirs.push(partialsDir);
+    // monitoredDirs = util.isArray(paths.monitor) ? paths.monitor : [paths.monitor];
+    // console.log(buildData);
+    
+    // log(util.inspect(buildData, { colors: true }));
     processPartials(buildData.partials || {});
     
     // render();
     log('Finished rendering');
         
-    if (buildData.monitor) monitor(dataFileName, monitoredDirs);
+    // if (buildData.paths.monitor) monitor(dataFileName, monitoredDirs);
+    if (buildData.monitor) monitor(dataFileName);
     // } catch (e) {
     //     console.log(dataFileName + ' is invalid, or doesn\'t exist!!\n', e);
     // }
