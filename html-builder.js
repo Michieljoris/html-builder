@@ -47,16 +47,17 @@ function trailWith(str, trail) {
 }
 
 function getPartial(partialsPath, name) {
-    var partial, path; 
+    var partial, path, partialName; 
     // log('getting partial', name);
     if (name.indexOf('.') === -1) {
         partial = partialsCollection[name];   
         if (partial) return partial;
-        name += '.html';
     }
+    partialName = name;
     // log('searching for partial on disk');
     var isMarkdown = endsWith(name, '.md') || endsWith(name, '.markdown');
-    if (!isMarkdown) name = trailWith(name, '.html');
+    var isJs = endsWith(name, '.js');
+    if (!isJs && !isMarkdown) name = trailWith(name, '.html');
     try {
         path = partialsPath + name;
         partial = fs.readFileSync(path, 'utf8');
@@ -65,11 +66,12 @@ function getPartial(partialsPath, name) {
         // console.log("Couldn't find partial " + partialsPath + name);
     }
     if (!partial) {
-        log("Couldn't find partial ".red + partialsPath + name);
+        log(partialName.red + " has not been defined nor found in " +
+            partialsPath.red + ' as an html file.');
         partial = makeTag('div', {
             'class': 'row',
             style: 'margin-left: 0; padding-left:10px; border:solid grey 1px; height:40; width:100%;' 
-            ,innerHtml: 'placeholder for ' + name
+            ,innerHtml: 'placeholder for ' + partialName
         });
     }
     return partial;   
@@ -139,25 +141,53 @@ function makeTag(tag, attrs, unary) {
     return result;   
 }
 
+function makeRouterMapping(route, partial, cntl) {
+    if (partial[0] !== '/') partial = '/' + partial;
+    return ',["' + route + '", "' + partial + '"' +
+        (cntl ? ', ' + cntl : '')  +
+        ']\n'; 
+}
+
+function makeRouterBlock(routes) {
+    var routerMapping = '';
+    // log('isarray', util.isArray(routes));
+    if (routes && util.isArray(routes)) {
+        routes.forEach(function(r) {
+            routerMapping += makeRouterMapping(r[0], r[1], r[2]) ;
+        }); 
+        if (routerMapping.length && routerMapping[0] === ',')
+            routerMapping = routerMapping.slice(1);
+        // log(routerMapping);
+    }
+    return routerMapping;
+}
+
 
 function buildMenuTree(tree) {
-    
-   tree = tree || [];
+    tree = tree || [];
     
     // var str = '<div class="ie-dropdown-fix" > <div id="navigation">' +
     //     '<ul id="nav" class="menu sf-menu">';
     var str = '';
+    function removeSlashes(str) {
+        if (str[0] === '/') str = str.slice(1);
+        if (str[str.length-1] === '/') str = str.slice(0, str.length-1);
+        return str;
+    }
     
     function makeLi(entry) {
         
-        var href = entry.href || '#';
+        var href = entry.href ||
+            (entry.route ? 'index.html#!/' + removeSlashes(entry.route) : undefined) ||
+            '#';
+        
         var li = '<li><a href="' + href + '"' + 
             (entry.id ? (' id="' + entry.id + '"') : '') + 
             '>' +
             (entry.icon ? ('<i class="icon-' + entry.icon + '"></i>') : '') +
             entry.label + '</a>';
         if (entry.sub) {
-                li += '<ul>';
+            li += '<ul>';
             entry.sub.forEach(function(e){
                 li += makeLi(e); 
             });
@@ -171,8 +201,9 @@ function buildMenuTree(tree) {
     tree.forEach(function(e){
         str += makeLi(e); 
     });
-    
-
+    // var length = routerMapping.lenght;
+    // if (length && routerMapping[length-1] === ',')
+    //     routerMapping = routerMapping.slice(0, length-1);
     // var end = '</ul></div></div><div class="clear"></div>';
     // str += end;   
     return str;
@@ -279,7 +310,28 @@ function makeSlideShow(args) {
     return makers[args.type](args.slides);
 }
 
+var uid = 1;
+function makeShowHide(args) {
+    if (uid === 1) {
+        var js = [
+            'showhide'
+        ];
+        var css = ['showhide'];
+        addTo_Blocks(js, css);
+    }
+    
+        
+    var wrapper = getPartial(args.partialsDir, 'html/showhide');
+    var wrappee = getPartial(args.partialsDir, args.showhide);
+    wrapper = wrapper.replace(/uniqueid/g, 'showhide' + uid++);
+    wrapper = wrapper.replace('inserthere', wrappee);
+    return wrapper;
+}
+
 function render(args) {
+    if (args.showhide) {
+        return makeShowHide(args);
+    }
     var partialsDir = args.partialsDir;
     
     var template = getPartial(partialsDir, args.src);
@@ -347,6 +399,7 @@ function addDirToMonitor(partial) {
 }
 
 function processPartials(partials) {
+    uid = 1;
     partialsCollection = addProperties(defaultPartials, partials.ids);
     Object.keys(partials).forEach(function(k) {
         addDirToMonitor(partials[k]);
@@ -359,6 +412,8 @@ function processPartials(partials) {
     });
     // log(util.inspect(partialsCollection, { colors: true }));
 }
+
+
 
 
 
@@ -481,7 +536,7 @@ function build() {
     
     var partialsDir = buildData.paths.root + buildData.paths.partials;
     builders.template.defArgs = {
-        root: buildData.paths.root,
+        root: paths.root,
         partialsDir: partialsDir,
         tagIdPostfix: buildData.tagIdPostfix,
         prettyPrintHtml: buildData.prettyPrintHtml,
@@ -497,6 +552,15 @@ function build() {
         partialsDir: partialsDir,
         js: 'js'
     };
+    
+    if (buildData.routes) {
+        var routerJsString = getPartial(partialsDir, 'js/router.js');
+        var routes  = makeRouterBlock(buildData.routes);
+        // routes = '/*' + routes + '*/';
+        routerJsString = routerJsString.replace(/inserthere/, routes);
+        saveFile(paths.root + trailWith(paths.js, '/') + 'router.js', routerJsString);
+    }
+    
     
     monitoredDirs = [];
     monitoredDirs.push(partialsDir);
