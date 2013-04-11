@@ -431,7 +431,7 @@ function monitor(dataFileName) {
     // log(dir);
     var options = {
         target: monitoredDirs,
-        // recursive: true,
+        recursive: true,
         listeners: {
             modify: onFileEvent
         }
