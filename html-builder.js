@@ -182,6 +182,7 @@ function buildMenuTree(tree) {
             '#';
         
         var li = '<li><a href="' + href + '"' + 
+            (entry.scroll ? (' class="scroll"') : '') +
             (entry.id ? (' id="' + entry.id + '"') : '') + 
             '>' +
             (entry.icon ? ('<i class="icon-' + entry.icon + '"></i>') : '') +
@@ -255,15 +256,16 @@ function makeSequenceSlider(slides) {
 
 function makeFlexSlider(slides) {
     var js = [
-        'jquery.flexslider-min'
+        'jquery.easing.1.3'
+        ,'jquery.flexslider-min'
         // 'startFlex'
     ];
     var css = ['flexslider'];
     addTo_Blocks(js, css);
     
     function makeSlide(s) {
-        return '<li><img src=' + s.url + 
-            '><div class="slide-caption"><h3>' + 
+        return '<li><img src="' + s.url + 
+            '"><div class="slide-caption"><h3>' + 
             s.title + '</h3> </div> </li>';
     }
     // var slides = args.slides; 
@@ -277,8 +279,8 @@ function makeFlexSlider(slides) {
 
 function makeCameraSlider(slides) {
     var js = [
-        'jquery.mobile.customized.min'
-        ,'jquery.easing.1.3'
+        // 'jquery.mobile.customized.min'
+        'jquery.easing.1.3'
         ,'camera.min'
         // ,'startCamera'
     ];
@@ -520,21 +522,30 @@ function build() {
     
     // try {
     var buildData = evalFile(dataFileName);
-    if (!buildData) throw Error('buildData is undefined!!');
+    var partialsDir;
+    if (!buildData) {
+        // console.log('Build data is undefined, so not building html.');
+        buildData = {
+            monitor: true,
+            verbose: true
+        };
+    }
     var paths = buildData.paths = buildData.paths || {};
     paths.root = trailWith(paths.root || process.cwd(), '/');
     paths.partials = trailWith( paths.partials || 'build', '/');
     paths.monitor = trailWith( paths.monitor || 'build', '/');
     paths.out = trailWith( paths.out || 'built', '/');
     
-    buildData.tagIdPostfix = buildData.tagIdPostfix || '--';
-        
     log = !buildData.verbose || !testing ?  function () {}: function() {
         console.log.apply(console, arguments); };
+    
+    
+    buildData.tagIdPostfix = buildData.tagIdPostfix || '--';
+        
     log('Cwd: ' + process.cwd());
     log('Root dir: ' + buildData.paths.root);
     
-    var partialsDir = buildData.paths.root + buildData.paths.partials;
+    partialsDir = buildData.paths.root + buildData.paths.partials;
     builders.template.defArgs = {
         root: paths.root,
         partialsDir: partialsDir,
@@ -563,7 +574,7 @@ function build() {
     
     
     monitoredDirs = [];
-    monitoredDirs.push(partialsDir);
+    if (partialsDir) monitoredDirs.push(partialsDir);
     // monitoredDirs = util.isArray(paths.monitor) ? paths.monitor : [paths.monitor];
     // console.log(buildData);
     
@@ -572,12 +583,7 @@ function build() {
     
     // render();
     log('Finished rendering');
-        
-    // if (buildData.paths.monitor) monitor(dataFileName, monitoredDirs);
     if (buildData.monitor) monitor(dataFileName);
-    // } catch (e) {
-    //     console.log(dataFileName + ' is invalid, or doesn\'t exist!!\n', e);
-    // }
 
 }
 

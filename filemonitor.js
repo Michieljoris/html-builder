@@ -86,11 +86,12 @@ var filemonitor = module.exports = {
    * Stop monitoring
    */
   stop: function (callback) {
-      process.nextTick(function () {
+      setTimeout(function() {
+      // process.nextTick(function () {
           if (inotify) inotify.kill();
           watching = false;
           callback();
-      });
+      },0);
   },
 
   /*
