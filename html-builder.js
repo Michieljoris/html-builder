@@ -335,6 +335,11 @@ function render(args) {
         return makeShowHide(args);
     }
     var partialsDir = args.partialsDir;
+    if (!args.src) {
+        log("Can't render partial. No source defined".red);
+        log(args);
+        return '';
+    }
     
     var template = getPartial(partialsDir, args.src);
         
