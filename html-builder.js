@@ -11,7 +11,7 @@ var fs = require('fs');
 // var path = require('path');
 var htmlFormatter = require('./html-formatter.js');
 var md = require("node-markdown").Markdown;
-var filemon = require('./filemonitor');
+var filemon = require('filemonitor');
 // var sys = require('sys');
 // var exec = require('child_process').exec;
 var argv = require('optimist').argv;
@@ -183,7 +183,7 @@ function buildMenuTree(tree) {
         
         var li = '<li><a href="' + href + '"' + 
             (entry.scroll ? (' class="scroll"') : '') +
-            (entry.id ? (' id="' + entry.id + '"') : '') + 
+            (entry.id ? (' id="' + entry.id + '"') : (' id="' + removeSlashes(entry.route + '"'))) + 
             '>' +
             (entry.icon ? ('<i class="icon-' + entry.icon + '"></i>') : '') +
             entry.label + '</a>';
