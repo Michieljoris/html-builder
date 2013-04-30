@@ -94,7 +94,7 @@ if (argv.h || argv.help) {
 }
 
 var monitoredDirs = [];
-var dir = (argv._ && argv._[0]) || process.cwd() + '/build/recipe.js';
+var dir = (argv._ && argv._[0]) || process.cwd() + '/build/';
 monitoredDirs.push(dir);
 monitor();
 
