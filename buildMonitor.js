@@ -37,6 +37,7 @@ function monitor(dataFileName) {
         // var i = ev.filename.lastIndexOf('/');
         // var dir = ev.filename.slice(0, i+1);
         // log(dir, ev.filename);
+        
         if (ev.filename === dataFileName ||
             // (target.indexOf(dir) !== -1 && (
             isMdown.test(ev.filename) ||
@@ -74,7 +75,7 @@ function monitor(dataFileName) {
     // var dir = dataFileName.slice(0, i+1);
     // target.push(dir);
     // log(dir);
-    console.log(monitoredDirs);
+    // console.log(monitoredDirs);
     var options = {
         target: monitoredDirs,
         recursive: true,
@@ -98,7 +99,7 @@ if (argv.h || argv.help) {
 
 
 var monitoredDirs = [];
-var dir = (argv._ && argv._[0]) || process.cwd() + '/build';
+var dir = (argv._ && argv._[0]) || process.cwd() + '/build/';
 monitoredDirs.push(dir);
-monitor('recipe.js');
+monitor(dir + 'recipe.js');
 
