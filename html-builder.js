@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 
 /*global exports:false require:false process:false*/
 /*jshint strict:false unused:true smarttabs:true eqeqeq:true immed: true undef:true*/
@@ -11,11 +10,10 @@ var fs = require('fs');
 // var path = require('path');
 var htmlFormatter = require('./html-formatter.js');
 var md = require("node-markdown").Markdown;
-var filemon = require('filemonitor');
+// var filemon = require('filemonitor');
 // var sys = require('sys');
 // var exec = require('child_process').exec;
-var argv = require('optimist').argv;
-var colors = require('colors');
+// var colors = require('colors');
 
 
 var log;
@@ -26,7 +24,7 @@ var defaultPartials = {
     ,link:'<link rel="stylesheet" type="text/css" href="">'
 };
 var partialsCollection = {};
-var monitoredDirs;
+// var monitoredDirs;
 
 
 function saveFile(name, str){
@@ -400,16 +398,16 @@ function makeUnaryTags(args) {
     return  result + '\n';   
 }
 
-function addDirToMonitor(partial) {
-   if (partial.partialsDir && monitoredDirs.indexOf(partial.partialsDir) === -1)
-       monitoredDirs.push(partial.partialsDir);
-}
+// function addDirToMonitor(partial) {
+//    if (partial.partialsDir && monitoredDirs.indexOf(partial.partialsDir) === -1)
+//        monitoredDirs.push(partial.partialsDir);
+// }
 
 function processPartials(partials) {
     uid = 1;
     partialsCollection = addProperties(defaultPartials, partials.ids);
     Object.keys(partials).forEach(function(k) {
-        addDirToMonitor(partials[k]);
+        // addDirToMonitor(partials[k]);
         partials[k] = partials[k] || [];
         partials[k] = util.isArray(partials[k]) ? partials[k] : [partials[k]];
         partials[k].forEach(function(d) {
@@ -436,72 +434,72 @@ function evalFile(fileName) {
         }
 } 
 
-function monitor(dataFileName) {
-    var isHtml = /.*\.html?$/;
-    var isMdown = /.*\.mdown?$/;
-    var isMarkdown = /.*\.markdown?$/;
-    var isMd = /.*\.md?$/;
-    // function puts(error, stdout, stderr) { sys.puts(stdout); }
-    // log(datajs);
+// function monitor(dataFileName) {
+//     var isHtml = /.*\.html?$/;
+//     var isMdown = /.*\.mdown?$/;
+//     var isMarkdown = /.*\.markdown?$/;
+//     var isMd = /.*\.md?$/;
+//     // function puts(error, stdout, stderr) { sys.puts(stdout); }
+//     // log(datajs);
 
-    var lastEvent = {
-        timestamp: '',
-        filename: ''
-    };
+//     var lastEvent = {
+//         timestamp: '',
+//         filename: ''
+//     };
     
-    var onFileEvent = function (ev) {
-        // var filetype = ev.isDir ? "directory" : "file";
-        // log(ev.filename);
-        // var i = ev.filename.lastIndexOf('/');
-        // var dir = ev.filename.slice(0, i+1);
-        // log(dir, ev.filename);
-        if (ev.filename === dataFileName ||
-            // (target.indexOf(dir) !== -1 && (
-            isMdown.test(ev.filename) ||
-            isMarkdown.test(ev.filename) ||
-            isMd.test(ev.filename) || 
-            isHtml.test(ev.filename)
-            // || true
-           )
+//     var onFileEvent = function (ev) {
+//         // var filetype = ev.isDir ? "directory" : "file";
+//         // log(ev.filename);
+//         // var i = ev.filename.lastIndexOf('/');
+//         // var dir = ev.filename.slice(0, i+1);
+//         // log(dir, ev.filename);
+//         if (ev.filename === dataFileName ||
+//             // (target.indexOf(dir) !== -1 && (
+//             isMdown.test(ev.filename) ||
+//             isMarkdown.test(ev.filename) ||
+//             isMd.test(ev.filename) || 
+//             isHtml.test(ev.filename)
+//             // || true
+//            )
             
-            // ))
-        {
-            // log(ev.timestamp);
-            if (lastEvent.timestamp.toString() === ev.timestamp.toString() &&
-                lastEvent.filename === ev.filename) return;
-            lastEvent = ev;
-            log('Modified>> '.green + ev.filename.yellow);
-            filemon.stop(function() {
-                build();
+//             // ))
+//         {
+//             // log(ev.timestamp);
+//             if (lastEvent.timestamp.toString() === ev.timestamp.toString() &&
+//                 lastEvent.filename === ev.filename) return;
+//             lastEvent = ev;
+//             log('Modified>> '.green + ev.filename.yellow);
+//             filemon.stop(function() {
+//                 build();
                 
-            });
-            // log('Building ' + buildData.out);
-            // exec("lispy -r " + ev.filename, puts);
-            // var buildData = evalFile(dataFileName);
-            // buildData.partialsPath = trailWith( buildData.partialsPath, '/');
-            // // log(buildData.title);
+//             });
+//             // log('Building ' + buildData.out);
+//             // exec("lispy -r " + ev.filename, puts);
+//             // var buildData = evalFile(dataFileName);
+//             // buildData.partialsPath = trailWith( buildData.partialsPath, '/');
+//             // // log(buildData.title);
             
-            // render();
-            // log("Event " + ev.eventId + " was captured for " +
-            //             filetype + " " + ev.filename + " on time: " + ev.timestamp.toString());
-            // }
-        }
-    };
-    // var i = dataFileName.lastIndexOf('/');
-    // var dir = dataFileName.slice(0, i+1);
-    // target.push(dir);
-    // log(dir);
-    var options = {
-        target: monitoredDirs,
-        recursive: true,
-        listeners: {
-            modify: onFileEvent
-        }
-    };
+//             // render();
+//             // log("Event " + ev.eventId + " was captured for " +
+//             //             filetype + " " + ev.filename + " on time: " + ev.timestamp.toString());
+//             // }
+//         }
+//     };
+//     // var i = dataFileName.lastIndexOf('/');
+//     // var dir = dataFileName.slice(0, i+1);
+//     // target.push(dir);
+//     // log(dir);
+//     var options = {
+//         target: monitoredDirs,
+//         recursive: true,
+//         listeners: {
+//             modify: onFileEvent
+//         }
+//     };
     
-    log('Watching ' + monitoredDirs.toString());
-    filemon.watch(options); 
-} 
+//     log('Watching ' + monitoredDirs.toString());
+//     filemon.watch(options); 
+// } 
 
 
 var builders = {
@@ -521,9 +519,11 @@ function makePartial(name, args) {
 }
 
 var testing = true;
-function build() {
+function build(dataFileName) {
     // var dataFileName = (argv._ && argv._[0]) || argv.file || '/home/michieljoris/www/firstdoor/data.js';
-    var dataFileName = (argv._ && argv._[0]) || argv.file || process.cwd() + '/build/recipe.js';
+    if (!dataFileName)
+        // dataFileName = (argv._ && argv._[0]) || argv.file ||
+        dataFileName = process.cwd() + '/build/recipe.js';
     
     // try {
     var buildData = evalFile(dataFileName);
@@ -531,14 +531,14 @@ function build() {
     if (!buildData) {
         // console.log('Build data is undefined, so not building html.');
         buildData = {
-            monitor: true,
+            // monitor: true,
             verbose: true
         };
     }
     var paths = buildData.paths = buildData.paths || {};
     paths.root = trailWith(paths.root || process.cwd(), '/');
     paths.partials = trailWith( paths.partials || 'build', '/');
-    paths.monitor = trailWith( paths.monitor || 'build', '/');
+    // paths.monitor = trailWith( paths.monitor || 'build', '/');
     paths.out = trailWith( paths.out || 'built', '/');
     
     log = !buildData.verbose || !testing ?  function () {}: function() {
@@ -578,8 +578,8 @@ function build() {
     }
     
     
-    monitoredDirs = [];
-    if (partialsDir) monitoredDirs.push(partialsDir);
+    // monitoredDirs = [];
+    // if (partialsDir) monitoredDirs.push(partialsDir);
     // monitoredDirs = util.isArray(paths.monitor) ? paths.monitor : [paths.monitor];
     // console.log(buildData);
     
@@ -588,15 +588,15 @@ function build() {
     
     // render();
     log('Finished rendering');
-    if (buildData.monitor) monitor(dataFileName);
+    // if (buildData.monitor) monitor(dataFileName);
 
 }
 
-if (argv.h || argv.help) {
-    console.log([
-        "usage: html-builder [pathToData.js]"
-    ].join('\n'));
-    process.exit();
-}
+// if (argv.h || argv.help) {
+//     console.log([
+//         "usage: html-builder [pathToData.js]"
+//     ].join('\n'));
+//     process.exit();
+// }
 
-build();
+exports.build = build;
