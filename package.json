@@ -1,14 +1,20 @@
 {
     "name": "html-builder",
-    "version": "0.1.3",
+    "version": "0.1.4",
     "description": "Don't write html, use a layout and and populate it with partials.",
     "main": "html-builder.js",
+    "auth": "Michiel van Oosten",
+    "email": "mail@michieljoris.net",
+    "repository": {
+	"type": "git",
+	"url": "git://github.com/michieljoris/html-builder"
+    },
     "dependencies": {
 	"plates": "~0.4.8",
 	"htmlparser2": "~2.5.2",
-	"node-markdown": "*",
-	"filemonitor": "*",
-	"optimist": "*",
+	"node-markdown": "0.1.x",
+	"filemonitor": "0.1.x",
+	"optimist": "0.4.x",
 	"colors": "*"
     },
     "devDependencies": {},
@@ -21,7 +27,6 @@
 	"template",
 	"partials"
     ],
-    "author": "Michiel van Oosten",
-    "license": "BSD"
+    "license": "MIT"
 }
 
