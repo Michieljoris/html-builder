@@ -60,6 +60,8 @@ function getPartial(partialsPath, name) {
         path = partialsPath + name;
         partial = fs.readFileSync(path, 'utf8');
         if (isMarkdown) partial = md(partial);
+        partial =  "\n<!--" +  name +  "-->\n" + partial;
+        // console.log('got partial ' + name + ' from disk');
     } catch(e) {
         // console.log("Couldn't find partial " + partialsPath + name);
     }
@@ -339,8 +341,9 @@ function render(args) {
         return '';
     }
     
+    // console.log('getting partial for ', args.src);
     var template = getPartial(partialsDir, args.src);
-        
+    
     args.mapping = args.mapping || [];
     
     var selector = {};
