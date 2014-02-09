@@ -1,0 +1,40 @@
+** html-builder
+**** cachifying resources
+put timestamped files in the source code at every build(as set in the
+recipe per extension), timestamp gets stripped off by bb-server anyway
+when the file is requested. Files that are the same will have same
+time stamp and the browser will use the cached version.
+
+https://github.com/code42day/connect-cachify-static
+You need to cachify all resources that you want cached longterm
+Easy in html-builder with js and css. Trickier with images and ajax
+calls, or other inline resource requesters such as loose script and link
+tags.
+Html-builder can try to find them and cachify them. Such as any img
+tags with a string for a src. But prefetching
+would be better. A rebuild would update references to modified
+resources with new cachified links.
+
+
+**** prefetching
+ http://www.4thkingdom.com/public/computers/789073-web-site-speed-prefetching-images-css/view-post.html  
+**** merge
+**** sitemap
+     http://en.wikipedia.org/wiki/Sitemaps
+**** editing of site (inline preferably)
+  See testsite for working prototype 
+  add login link to page, or with path /login a bar appears on top, or
+  the link appears.
+  In topbar is logout, editmode off/on, Save changes (Automatically
+  takes dated snapshot), Snapshots: Take, Use.., Download (tick to take snapshot and download), Upload
+  (tick to use)
+
+TTake snapshot (give it a name), Use snapshot..
+  Download snapshot (to computer or dropbox or filepicker), Upload Snapshot
+inline x-editable, http://vitalets.github.io/x-editable/demo.html?c=inline
+ckeditor inline http://ckeditor.com/demo#inline
+http://mattduvall.com/grande.js/
+http://sofish.github.io/pen/
+http://hallojs.org/
+https://github.com/daviferreira/medium-editor
+http://www.zenpen.io/

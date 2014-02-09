@@ -6,6 +6,7 @@
 // var sys = require('sys');
 
 var filemon = require('filemonitor');
+//don't forget to install inotify-tools for filemonitor!!!
 require('colors');
 var argv = require('optimist').argv;
 

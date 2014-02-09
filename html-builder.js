@@ -178,7 +178,7 @@ function buildMenuTree(tree) {
     function makeLi(entry) {
         
         var href = entry.href ||
-            (entry.route ? 'index.html#!/' + removeSlashes(entry.route) : undefined) ||
+            (entry.route ? '#!/' + removeSlashes(entry.route) : undefined) ||
             '#';
         
         var li = '<li><a href="' + href + '"' + 
