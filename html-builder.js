@@ -60,7 +60,12 @@ function getPartial(partialsPath, name) {
         path = partialsPath + name;
         partial = fs.readFileSync(path, 'utf8');
         if (isMarkdown) partial = md(partial);
-        partial =  "\n<!--" +  name +  "-->\n" + partial;
+        // console.log(partial);
+        //bloody IE panics and goes into quirk mode if there's anything before the doctype html tag!!!
+        //so make sure for IE compatibility to have as the basic page's first 15 characters:<doctype html> 
+        console.log(partial.slice(0,15).toLowerCase());
+        if (partial.slice(0,15).toLowerCase() !== '<!doctype html>')
+            partial =  "\n<!--partial:" +  name +  "-->\n" + partial;
         // console.log('got partial ' + name + ' from disk');
     } catch(e) {
         // console.log("Couldn't find partial " + partialsPath + name);
