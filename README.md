@@ -1,7 +1,13 @@
 html-builder
 -----------
 
-The main file html-builder.js exports on function: 'build'. This
+Completeyly hacked together as requirements came up, but it works!
+
+It now concatenates your css and js files in production mode and adds a cache
+stamp to all static resources, to work together with
+[bb-server](github.com/michieljoris/bb-server).
+
+The main file html-builder.js exports one function: 'build'. This
 function takes a dataFileName. If it is not given it will look for
 build/recipe.js in the current working directory.
 
@@ -99,7 +105,7 @@ other partial(s). Maybe I should draw a map of it. That should help.
 
 The resulting html doesn't look too pretty though. You could achieve
 the similar result by using a templating library such as handlebars
-etc but these built the result in the browser, not necessary
+etc but these build the result in the browser, not necessary
 always. Plus I don't like the magic. With this builder I am in control
 of what happens.
 

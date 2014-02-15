@@ -1,5 +1,6 @@
-** html-builder
-**** cachifying resources
+* html-builder
+** concat all js and css files   
+** cachifying resources
 put timestamped files in the source code at every build(as set in the
 recipe per extension), timestamp gets stripped off by bb-server anyway
 when the file is requested. Files that are the same will have same
@@ -14,14 +15,20 @@ Html-builder can try to find them and cachify them. Such as any img
 tags with a string for a src. But prefetching
 would be better. A rebuild would update references to modified
 resources with new cachified links.
+** cachify list:
+CloudFlare's CDN caches the following types of static content by extension for
+all account types by default:
+
+css js jpg jpeg gif ico png bmp pict csv doc pdf pls ppt tif tiff eps swf midi
+mid ttf eot woff svg svgz webp docx xlsx xls pptx ps
 
 
-**** prefetching
+** prefetching
  http://www.4thkingdom.com/public/computers/789073-web-site-speed-prefetching-images-css/view-post.html  
-**** merge
-**** sitemap
-     http://en.wikipedia.org/wiki/Sitemaps
-**** editing of site (inline preferably)
+** sitemap
+   http://en.wikipedia.org/wiki/Sitemaps
+Make a draft of sitemap by extracting it from the menu in recipe.js 
+** editing of site (inline preferably)
   See testsite for working prototype 
   add login link to page, or with path /login a bar appears on top, or
   the link appears.

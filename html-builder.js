@@ -1,4 +1,3 @@
-
 /*global exports:false require:false process:false*/
 /*jshint strict:false unused:true smarttabs:true eqeqeq:true immed: true undef:true*/
 /*jshint maxparams:6 maxcomplexity:10 maxlen:190 devel:true*/
@@ -7,14 +6,12 @@
 var Plates = require('plates');
 var util = require('util');
 var fs = require('fs');
-// var path = require('path');
 var htmlFormatter = require('./html-formatter.js');
 var md = require("node-markdown").Markdown;
-// var filemon = require('filemonitor');
 // var sys = require('sys');
 // var exec = require('child_process').exec;
-// var colors = require('colors');
-
+var colors = require('colors');
+var Path = require('path');
 
 var log;
 
@@ -25,6 +22,12 @@ var defaultPartials = {
 };
 var partialsCollection = {};
 // var monitoredDirs;
+
+var extraJs = {}, extraCss = {};
+function addResources(id, js, css) {
+    extraJs[id] = js;
+    extraCss[id] = css;
+}
 
 
 function saveFile(name, str){
@@ -63,7 +66,6 @@ function getPartial(partialsPath, name) {
         // console.log(partial);
         //bloody IE panics and goes into quirk mode if there's anything before the doctype html tag!!!
         //so make sure for IE compatibility to have as the basic page's first 15 characters:<doctype html> 
-        console.log(partial.slice(0,15).toLowerCase());
         if (partial.slice(0,15).toLowerCase() !== '<!doctype html>')
             partial =  "\n<!--partial:" +  name +  "-->\n" + partial;
         // console.log('got partial ' + name + ' from disk');
@@ -84,7 +86,8 @@ function getPartial(partialsPath, name) {
 
 function makeStyleBlock(args) {
     // console.log('Making style block\n', args);
-    var path = trailWith(args.path, '/') || 'css/';
+    
+    var path = (typeof args.path === 'undefined') ? 'css' : args.path;
     var array = args.files;
     
     var map = Plates.Map();
@@ -106,7 +109,7 @@ function makeStyleBlock(args) {
             var data;
             if (e.indexOf('http') === 0)
                 data = { data: e };
-            else data = { data: path + e };
+            else data = { data: Path.join(path , e) };
             result += Plates.bind(style, data, map);
         }
     });
@@ -116,8 +119,7 @@ function makeStyleBlock(args) {
 
 function makeScriptBlock(args) {
     // console.log('Making script block\n', args);
-    var path = trailWith(args.path, '/') || 'js/';
-
+    var path = (typeof args.path === 'undefined') ? 'js' : args.path;
     var array = args.files;
     var map = Plates.Map();
     map.where('type').is('text/javascript').use('data').as('src');
@@ -125,9 +127,10 @@ function makeScriptBlock(args) {
     var result = '';
         array.forEach(function(e) {
             e = trailWith(e, '.js');
-            var data = { data: path + e };
+            var data = { data: Path.join(path, e) };
             result += Plates.bind(script, data, map);
         });
+    // log(result);
     return result + '\n';   
 }
 
@@ -215,11 +218,15 @@ function buildMenuTree(tree) {
     return str;
 }
 
-function addTo_Blocks(js, css) {
-    partialsCollection._scriptBlock += makePartial('scriptBlock', { files: js});
-    partialsCollection._linkBlock += makePartial('linkBlock', { files: css});
-} 
+// function addTo_Blocks(js, css) {
+//     log('-----', partialsCollection._scriptBlock);
+//     partialsCollection._scriptBlock += makePartial('scriptBlock', { files: js});
+//     log('-----', partialsCollection._scriptBlock);
+//     partialsCollection._linkBlock += makePartial('linkBlock', { files: css});
+// } 
 
+addResources('cssmenu',[] , ['menu.css']);
+addResources('superfish', ['hoverIntent.js', 'superfish.js', 'startSuperfish.js']);
 function makeMenu(args) {
     var menus = {
         
@@ -243,30 +250,36 @@ function makeMenu(args) {
     };
     var menu = menus[args.type];
     if (!menu) return '';
-    addTo_Blocks(menu.js, menu.css);
+    // addTo_Blocks(menu.js, menu.css);
     return menu.start + buildMenuTree(args.tree) + menu.end;
     
 }
 
+addResources('sequence-slider',
+             ['sequence.jquery-min.js' ,'startSequence.js'],
+             ['slidein-seqtheme.css']);
 function makeSequenceSlider(slides) {
-    var js = [
-            'sequence.jquery-min'
-            ,'startSequence'
-    ];
-    var css = ['slidein-seqtheme'];
-    addTo_Blocks(js, css);
+    // var js = [
+    //         'sequence.jquery-min'
+    //         ,'startSequence'
+    // ];
+    // var css = ['slidein-seqtheme'];
+    // addTo_Blocks(js, css);
     return '';
     //TODO
 }
 
+addResources('flex-slider', ['jquery.easing.1.3.js'
+                             ,'jquery.flexslider-min.js'],
+             ['flexslider.css']);
 function makeFlexSlider(slides) {
-    var js = [
-        'jquery.easing.1.3'
-        ,'jquery.flexslider-min'
-        // 'startFlex'
-    ];
-    var css = ['flexslider'];
-    addTo_Blocks(js, css);
+    // var js = [
+    //     'jquery.easing.1.3'
+    //     ,'jquery.flexslider-min'
+    //     // 'startFlex'
+    // ];
+    // var css = ['flexslider'];
+    // addTo_Blocks(js, css);
     
     function makeSlide(s) {
         return '<li><img src="' + s.url + 
@@ -282,15 +295,21 @@ function makeFlexSlider(slides) {
     return str;
 }
 
+addResources('camera-slider', [
+    // 'jquery.mobile.customized.min'
+    // ,'startCamera'
+    'jquery.easing.1.3.js' ,'camera.min.js'],
+             ['camera.css']);
+
 function makeCameraSlider(slides) {
-    var js = [
-        // 'jquery.mobile.customized.min'
-        'jquery.easing.1.3'
-        ,'camera.min'
-        // ,'startCamera'
-    ];
-    var css = ['camera'];
-    addTo_Blocks(js, css);
+    // var js = [
+    //     // 'jquery.mobile.customized.min'
+    //     'jquery.easing.1.3'
+    //     ,'camera.min'
+    //     // ,'startCamera'
+    // ];
+    // var css = ['camera'];
+    // addTo_Blocks(js, css);
     
     function makeSlide(s) {
         return '<div data-src=' + s.url +
@@ -317,17 +336,17 @@ function makeSlideShow(args) {
     return makers[args.type](args.slides);
 }
 
-var uid = 1;
+
+addResources('showhide', ['showhide.js'], ['showhide.css']);
 function makeShowHide(args) {
-    if (uid === 1) {
-        var js = [
-            'showhide'
-        ];
-        var css = ['showhide'];
-        addTo_Blocks(js, css);
-    }
+    // if (uid === 1) {
+    //     var js = [
+    //         'showhide'
+    //     ];
+    //     var css = ['showhide'];
+    //     addTo_Blocks(js, css);
+    // }
     
-        
     var wrapper = getPartial(args.partialsDir, 'html/showhide');
     var wrappee = getPartial(args.partialsDir, args.showhide);
     wrapper = wrapper.replace(/uniqueid/g, 'showhide' + uid++);
@@ -408,11 +427,6 @@ function makeUnaryTags(args) {
     return  result + '\n';   
 }
 
-// function addDirToMonitor(partial) {
-//    if (partial.partialsDir && monitoredDirs.indexOf(partial.partialsDir) === -1)
-//        monitoredDirs.push(partial.partialsDir);
-// }
-
 function processPartials(partials) {
     uid = 1;
     partialsCollection = addProperties(defaultPartials, partials.ids);
@@ -428,10 +442,6 @@ function processPartials(partials) {
     // log(util.inspect(partialsCollection, { colors: true }));
 }
 
-
-
-
-
 function evalFile(fileName) {
     var file;
     try { file = fs.readFileSync(fileName, 'utf8');
@@ -443,74 +453,6 @@ function evalFile(fileName) {
             return undefined;
         }
 } 
-
-// function monitor(dataFileName) {
-//     var isHtml = /.*\.html?$/;
-//     var isMdown = /.*\.mdown?$/;
-//     var isMarkdown = /.*\.markdown?$/;
-//     var isMd = /.*\.md?$/;
-//     // function puts(error, stdout, stderr) { sys.puts(stdout); }
-//     // log(datajs);
-
-//     var lastEvent = {
-//         timestamp: '',
-//         filename: ''
-//     };
-    
-//     var onFileEvent = function (ev) {
-//         // var filetype = ev.isDir ? "directory" : "file";
-//         // log(ev.filename);
-//         // var i = ev.filename.lastIndexOf('/');
-//         // var dir = ev.filename.slice(0, i+1);
-//         // log(dir, ev.filename);
-//         if (ev.filename === dataFileName ||
-//             // (target.indexOf(dir) !== -1 && (
-//             isMdown.test(ev.filename) ||
-//             isMarkdown.test(ev.filename) ||
-//             isMd.test(ev.filename) || 
-//             isHtml.test(ev.filename)
-//             // || true
-//            )
-            
-//             // ))
-//         {
-//             // log(ev.timestamp);
-//             if (lastEvent.timestamp.toString() === ev.timestamp.toString() &&
-//                 lastEvent.filename === ev.filename) return;
-//             lastEvent = ev;
-//             log('Modified>> '.green + ev.filename.yellow);
-//             filemon.stop(function() {
-//                 build();
-                
-//             });
-//             // log('Building ' + buildData.out);
-//             // exec("lispy -r " + ev.filename, puts);
-//             // var buildData = evalFile(dataFileName);
-//             // buildData.partialsPath = trailWith( buildData.partialsPath, '/');
-//             // // log(buildData.title);
-            
-//             // render();
-//             // log("Event " + ev.eventId + " was captured for " +
-//             //             filetype + " " + ev.filename + " on time: " + ev.timestamp.toString());
-//             // }
-//         }
-//     };
-//     // var i = dataFileName.lastIndexOf('/');
-//     // var dir = dataFileName.slice(0, i+1);
-//     // target.push(dir);
-//     // log(dir);
-//     var options = {
-//         target: monitoredDirs,
-//         recursive: true,
-//         listeners: {
-//             modify: onFileEvent
-//         }
-//     };
-    
-//     log('Watching ' + monitoredDirs.toString());
-//     filemon.watch(options); 
-// } 
-
 
 var builders = {
     metaBlock: { f: makeUnaryTags, defArgs: { tagType: 'meta'}}
@@ -530,26 +472,22 @@ function makePartial(name, args) {
 
 var testing = true;
 function build(dataFileName) {
-    // var dataFileName = (argv._ && argv._[0]) || argv.file || '/home/michieljoris/www/firstdoor/data.js';
     if (!dataFileName)
-        // dataFileName = (argv._ && argv._[0]) || argv.file ||
         dataFileName = process.cwd() + '/build/recipe.js';
-    
-    // try {
     var buildData = evalFile(dataFileName);
     var partialsDir;
     if (!buildData) {
-        // console.log('Build data is undefined, so not building html.');
         buildData = {
-            // monitor: true,
             verbose: true
         };
     }
     var paths = buildData.paths = buildData.paths || {};
+    paths.www = paths.www || 'www';
     paths.root = trailWith(paths.root || process.cwd(), '/');
     paths.partials = trailWith( paths.partials || 'build', '/');
     // paths.monitor = trailWith( paths.monitor || 'build', '/');
-    paths.out = trailWith( paths.out || 'built', '/');
+    paths.out = Path.join(paths.www , trailWith( paths.out || 'built', '/'));
+    paths.js = Path.join(paths.www , trailWith( paths.js || 'js', '/'));
     
     log = !buildData.verbose || !testing ?  function () {}: function() {
         console.log.apply(console, arguments); };
@@ -587,11 +525,51 @@ function build(dataFileName) {
         saveFile(paths.root + trailWith(paths.js, '/') + 'router.js', routerJsString);
     }
     
+    function concat(blocks, ext) {
+        if (blocks) {
+            blocks = Array.isArray(blocks) ? blocks : [blocks];
+            blocks = blocks.map(function(block) {
+                block.files = Array.isArray(block.files) ? block.files : [block.files];
+                var data =  block.files
+                    .map(function(f) {
+                        return Path.join(paths.root , paths.www, block.path + trailWith(f, ext));
+                    })
+                    .filter(function(f) {
+                        if (fs.existsSync(f)) return true;
+                        else log('Warning: '.red + 'Not found: ' + f.yellow);
+                        return false;
+                    })
+                    .map(function(f) {
+                        var data = fs.readFileSync(f);
+                        // return ('//*' + f + '*//\n' + data.toString().slice(0,30));
+                        return ('//*' + f + '*//\n' + data.toString());
+                    }).join('\n;\n');
+                var fileName = trailWith(block.id, ext);
+                fs.writeFileSync(Path.join(paths.root, paths.www, fileName), data);
+                return { id: block.id, files: [fileName], path: '' };
+            });
+        }
+        return blocks;
+    } 
+    var firstScriptBlock = Array.isArray(buildData.partials.scriptBlock) ?
+                buildData.partials.scriptBlock[0] : 
+                buildData.partials.scriptBlock;
+    Object.keys(extraJs).forEach(function(key) {
+        if (~buildData.extras.indexOf(key)) {
+            if (extraJs[key])
+                firstScriptBlock.files = firstScriptBlock.files.concat(extraJs[key]); 
+            if (extraCss[key])
+                buildData.partials.linkBlock.files =
+                buildData.partials.linkBlock.files.concat(extraCss[key]); 
+        }
+    });
     
-    // monitoredDirs = [];
-    // if (partialsDir) monitoredDirs.push(partialsDir);
-    // monitoredDirs = util.isArray(paths.monitor) ? paths.monitor : [paths.monitor];
-    // console.log(buildData);
+    
+    if (buildData.concatenate) {
+        buildData.partials.scriptBlock = concat(buildData.partials.scriptBlock, '.js');
+        buildData.partials.linkBlock = concat(buildData.partials.linkBlock, '.css');
+    }
+    
     
     // log(util.inspect(buildData, { colors: true }));
     processPartials(buildData.partials || {});
@@ -610,3 +588,6 @@ function build(dataFileName) {
 // }
 
 exports.build = build;
+
+build('./recipe.js');
+
