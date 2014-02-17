@@ -328,8 +328,60 @@ var exports = {
         ,out:'built' 
         ,js: 'js'
     }
-    ,stamp: !develop_mode 
+    ,cachify: !develop_mode 
+    /*
+      If cachify if falsy resources will be requested as is, without a
+      stamp. Which means bb-server will send them with max-age=0 and
+      expires=[data-in-the-past], which means any caching mechanism will call
+      back to the server to ask for an update.
+      
+      If cachify is truthy all requests for files with the following extensions
+      will be stamped by prepending a sha1 hash checksum to the path to the
+      file, in other words, uniquifying the request for a particular version
+      of a file:
+      
+      css js jpg jpeg gif ico png bmp pict csv doc pdf pls ppt tif tiff eps swf midi
+      mid ttf eot woff svg svgz webp docx xlsx xls pptx ps
+      
+      (https://support.cloudflare.com/hc/en-us/articles/200172516-What-file-extensions-does-CloudFlare-cache-for-static-content-)
+
+      This will only work if the server serving the files is able to strip these
+      stamps before processing the request
+
+      If this option (stamp) is truthy,  by default bb-server sets
+      max-age=[one-year] and expires=[one-year-in-the-future] (see the cache and
+      stamp settings of bb-server) of responses to requests for stamped
+      files. If not turned on it will respond with lots of 404's :-).
+      
+      To opt out for a particular extension, list it under exclude. Requests for
+      these files will be for the real filename, maybe set cache-control:
+      max-age=[1day].
+      
+      To use mtime instead of a hash to uniqify a request for a file with a
+      particular extension, list the extension under mtime. This will speed up
+      html-builder if you are cachefying lots of resources, however it will not
+      work if you replace a newer file with an older one, like a pdf file with a
+      another pdf file of the same name, but created before the first one. You'd
+      have to use the linux command touch on it first.
+      
+      
+      Manifest?? 
+    */ 
+    
+    //hash or mtime, query or modified filename
+    // ,stamp : {
+    //     exclude: [] //for instance ['pdf', 'doc']
+    
+    // var crypto = require('crypto');
+    // var hashes = crypto.getHashes();
+    //     ,method: 'sha1' //mtime or any of the hashes returned from crypto.getHashes()
+    //     ,lengh: 10 //ignored and set to 13 when method === mtime
+    //     ,prefix: '' //for instance 'stamp-'
+    // }
+    //group the script and link blocks and concatenate all files listed in a block
     ,concatenate: !develop_mode 
+    //make sure to load the resources for custom components, the files get added
+    //to the first script and link blocks.
     ,extras: ['flex-slider', 'cssmenu', 'showhide']
     ,routes: [
         ['home', '/built/view-home.html', 'HomeCntl'],
@@ -373,6 +425,7 @@ var exports = {
             ,fragment: '<meta name="fragment" content="!">'
             // ,firebug: '<script type="text/javascript" src="https://getfirebug.com/firebug-lite-debug.js></script>"'
         }
+        //TODO, only one linkblock possible, not an array of them I think
         ,metaBlock : {
             id: 'meta',
             tags: [ { charset:'utf-8' }

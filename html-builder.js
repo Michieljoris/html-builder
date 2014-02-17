@@ -12,6 +12,7 @@ var md = require("node-markdown").Markdown;
 // var exec = require('child_process').exec;
 var colors = require('colors');
 var Path = require('path');
+var crypto = require('crypto');
 
 var log;
 
@@ -23,12 +24,40 @@ var defaultPartials = {
 var partialsCollection = {};
 // var monitoredDirs;
 
+
+var calcStamp;
+
+function getCalcStamp(settings) {
+    return settings.method === 'mtime'  ?
+        function (pathName) { 
+            return fs.statSync(pathName).mtime.getTime(); }
+    : function (file) { 
+        var sum = crypto.createHash(settings.method);
+        sum.update(fs.readFileSync(file));
+        return sum.digest('hex').slice(0, settings.length);
+    };
+}
+
+function cachify(prefix, pathName, exclude) {
+    exclude = exclude || [];
+    var stamp;
+    var ext = Path.extname(pathName).slice(1);
+    if (~exclude.indexOf(ext)) return pathName;
+    try {
+	stamp = calcStamp(pathName);
+	
+    } catch(e) { console.log('Failed to stamp '.red + pathName.green + ' err: '.red + e);
+		 return pathName;
+	       }
+    return Path.join(prefix + stamp, pathName);
+}
+
+
 var extraJs = {}, extraCss = {};
 function addResources(id, js, css) {
     extraJs[id] = js;
     extraCss[id] = css;
 }
-
 
 function saveFile(name, str){
     fs.writeFileSync(
@@ -551,33 +580,41 @@ function build(dataFileName) {
         }
         return blocks;
     } 
+    
     var firstScriptBlock = Array.isArray(buildData.partials.scriptBlock) ?
-                buildData.partials.scriptBlock[0] : 
-                buildData.partials.scriptBlock;
+        buildData.partials.scriptBlock[0] : 
+        buildData.partials.scriptBlock;
+    var firstLinkBlock = Array.isArray(buildData.partials.linkBlock) ?
+        buildData.partials.linkBlock[0] : 
+        buildData.partials.linkBlock;
     Object.keys(extraJs).forEach(function(key) {
         if (~buildData.extras.indexOf(key)) {
             if (extraJs[key])
                 firstScriptBlock.files = firstScriptBlock.files.concat(extraJs[key]); 
             if (extraCss[key])
-                buildData.partials.linkBlock.files =
-                buildData.partials.linkBlock.files.concat(extraCss[key]); 
+                firstLinkBlock.files = firstScriptBlock.files.concat(extraCss[key]); 
         }
     });
-    
-    
+
     if (buildData.concatenate) {
         buildData.partials.scriptBlock = concat(buildData.partials.scriptBlock, '.js');
         buildData.partials.linkBlock = concat(buildData.partials.linkBlock, '.css');
     }
-    
+    if (buildData.cachify) {
+        buildData.cachify = typeof buildData.cachify === 'boolean' ?
+            {   exclude: [],
+                method: 'sha1',
+                length: 10,
+                prefix: '_'
+            } : buildData.cachify;
+        calcStamp = getCalcStamp(buildData.stamp); 
+    }
+    else cachify = function(pathName) { return pathName; };
     
     // log(util.inspect(buildData, { colors: true }));
     processPartials(buildData.partials || {});
     
-    // render();
     log('Finished rendering');
-    // if (buildData.monitor) monitor(dataFileName);
-
 }
 
 // if (argv.h || argv.help) {
