@@ -4,21 +4,42 @@ var fs = require('fs');
 var colors = require('colors');
 var hashes = crypto.getHashes();
 var Path = require('path');
+var log = function() {
+    console.log.apply(console, arguments); };
+var a = 'bla.pdf';
+log(Path.extname(a));
+var html = "asdfasdfds<a href='bla'>link</a>   <a href='two' >l2</a>";
+var cheerio = require('cheerio'),
+    $ = cheerio.load(html);
+// log($('a'));
+var r = $('a').map(function(i, e) {
+    log(i, e.attribs.href);
+    e.attribs.href = 'okthen';
+    return e;
+});
 
-function cachify(path) { return 'abc'; }
-function makeCachifyPartial(list) {
-    list = list || [];
-    var start = "<script type='text/javascript'>\n  function cachify(path) {\n" +
-        "    var map = {\n";
-    var end = "\n    };\n    return map[path] || path; }\n</script>";
-    list = list.map(function(p) {
-        return '      "' + p.toString() + '": "' + cachify(p) + '"';
-    });
-    list = list.join(',\n');
-    return start + list + end;
-}
+log($.html());
+// log($.html());
+// $('a').attr('href', 'replace').html();;
 
-console.log(makeCachifyPartial([ 'bla/com', 'ok.bla' ]));
+// log($.html());
+
+
+// log($(html))
+// function cachify(path) { return 'abc'; }
+// function makeCachifyPartial(list) {
+//     list = list || [];
+//     var start = "<script type='text/javascript'>\n  function cachify(path) {\n" +
+//         "    var map = {\n";
+//     var end = "\n    };\n    return map[path] || path; }\n</script>";
+//     list = list.map(function(p) {
+//         return '      "' + p.toString() + '": "' + cachify(p) + '"';
+//     });
+//     list = list.join(',\n');
+//     return start + list + end;
+// }
+
+// console.log(makeCachifyPartial([ 'bla/com', 'ok.bla' ]));
 
 // function format(fmt, args) {
 //     if (fmt.indexOf('%d') != -1 ||

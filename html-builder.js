@@ -13,6 +13,7 @@ var md = require("node-markdown").Markdown;
 var colors = require('colors');
 var Path = require('path');
 var crypto = require('crypto');
+var cheerio = require('cheerio');
 
 var log;
 
@@ -27,9 +28,23 @@ var uid;
 var calcStamp, cachify;
 var manifest = {};
 
-function cachifyTemplate(str) {
-    console.log('cachifying..');
-    return str;
+
+var stamps;
+
+function cachifyTemplate(html, options) {
+    $ = cheerio.load(html);
+    $('a').filter(function(i, e) {
+        var href = e.attribs.href;
+        var ext = Path.extname(href);
+        return href && href.indexOf('http') === -1 &&
+            href.indexOf('mailto') === -1 &&
+            ext && options.exclude.indexOf(ext.slice(1)) === -1;
+    }).map(function(i, e) {
+        var href = e.attribs.href;
+        e.attribs.href =  cachify(href);
+        return e;
+    });
+    return $.html();
 }
 
 function getCalcStamp(root, settings) {
@@ -54,6 +69,7 @@ function getCalcStamp(root, settings) {
 function stamp(prefix, pathName, exclude) {
     //TODO cachify using manifest, so map of file to its hash and latest version
     //number, and insert the last as stamp.
+    if (stamps[pathName]) return stamps[pathName];
     exclude = exclude || [];
     var stamp;
     var ext = Path.extname(pathName).slice(1);
@@ -61,9 +77,11 @@ function stamp(prefix, pathName, exclude) {
     try {
         stamp = calcStamp(pathName); 
     } catch(e) { console.log('Failed to stamp '.red + pathName.green + ' err: '.red + e);
+                 stamps[pathName] = pathName;
 		 return pathName;
 	       }
-    return Path.join(prefix + stamp, pathName);
+    
+    return stamps[pathName] = Path.join(prefix + stamp, pathName);
 }
 
 
@@ -389,6 +407,7 @@ function makeCachifyPartial(list) {
     var start = "<script type='text/javascript'>\n  function cachify(path) {\n" +
         "    var map = {\n";
     var end = "\n    };\n    return map[path] || path; }\n</script>";
+    
     list = list.map(function(p) {
         return '      "' + p.toString() + '": "' + cachify(p) + '"';
     });
@@ -437,7 +456,7 @@ function render(args) {
     var str = args.src.green;
     if (args.out) {
         //TODO
-        saveFile(args.root + args.pathOut + args.out, cachifyTemplate(template));   
+        saveFile(args.root + args.pathOut + args.out, cachifyTemplate(template, args.cachify));   
         str+= ' >> ' + args.out.blue;
         // log('>>' + args.out);
     }
@@ -608,7 +627,8 @@ function build(dataFileName) {
         partialsDir: partialsDir,
         tagIdPostfix: buildData.tagIdPostfix,
         prettyPrintHtml: buildData.prettyPrintHtml,
-        pathOut: paths.out
+        pathOut: paths.out,
+        cachify: buildData.cachify
     };
     
     builders.linkBlock.defArgs = {
@@ -681,6 +701,8 @@ function build(dataFileName) {
         buildData.partials.scriptBlock = concat(buildData.partials.scriptBlock, '.js');
         buildData.partials.linkBlock = concat(buildData.partials.linkBlock, '.css');
     }
+    
+    stamps = {};
     if (buildData.cachify) {
         buildData.cachify = typeof buildData.cachify === 'boolean' ?
             {   exclude: [],
@@ -697,11 +719,9 @@ function build(dataFileName) {
     }
     else cachify = function(pathName) { return pathName; };
     
-    
     // log(util.inspect(buildData, { colors: true }));
     processPartials(buildData.partials || {});
     
-    //TODO print out nice tree using mappings:
     var map = buildMap(buildData.partials.template);
     
     if (buildData.verbose && buildData.printMap) log(util.inspect(map, { depth:10 }));

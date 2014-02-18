@@ -402,7 +402,13 @@ var exports = {
             "images/slides/tab_accredited_training.jpg",
             "images/slides/tab_professional_development.jpg",
             "images/slides/tab_resources.jpg",
-            'images/slides/tab_about_us.jpg'
+            'images/slides/tab_about_us.jpg',
+            'documents/FirstDoor_StudentHandbook.pdf',
+            'documents/Diploma_Early_Childhood_Course_Guide.pdf',
+            'documents/Dip ECEC enrolment print version.pdf',
+            'documents/Dip ECEC enrolment electronic version.docx',
+            'documents/Individual Units enrolment print version.pdf',
+            'documents/Individual Units enrolment electronic version.docx'
         ]
     } 
     //group the script and link blocks and concatenate all files listed in a block
