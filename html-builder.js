@@ -17,35 +17,49 @@ var crypto = require('crypto');
 var log;
 
 var defaultPartials = {
-   _linkBlock: '', _scriptBlock: '' 
-    ,script: '<script type="text/javascript" src="bla"></script>'
+    script: '<script type="text/javascript" src="bla"></script>'
     ,link:'<link rel="stylesheet" type="text/css" href="">'
+    ,'cachify': "<script type='text/javascript'>function cachify(path) { return path; }</script>"
 };
 var partialsCollection = {};
-// var monitoredDirs;
+var uid;
 
+var calcStamp, cachify;
+var manifest = {};
 
-var calcStamp;
-
-function getCalcStamp(settings) {
-    return settings.method === 'mtime'  ?
-        function (pathName) { 
-            return fs.statSync(pathName).mtime.getTime(); }
-    : function (file) { 
-        var sum = crypto.createHash(settings.method);
-        sum.update(fs.readFileSync(file));
-        return sum.digest('hex').slice(0, settings.length);
-    };
+function cachifyTemplate(str) {
+    console.log('cachifying..');
+    return str;
 }
 
-function cachify(prefix, pathName, exclude) {
+function getCalcStamp(root, settings) {
+    switch(settings.method) {
+      case 'mtime' : return function (pathName) { 
+          return fs.statSync(Path.join(root,pathName)).mtime.getTime(); };
+      case 'manifest' :  break;
+      default: return function(file) { 
+          var sum = crypto.createHash(settings.method);
+          sum.update(fs.readFileSync(Path.join(root,file)));
+          return sum.digest('hex').slice(0, settings.length);
+      };
+        
+    }
+}
+//js, css <script....
+//images and slides <img ....
+//view routes
+//router.js
+//all other links (<a href="asdfdasf">bla</a>) to documents in any html doc, so
+//all the partials that have an out field..
+function stamp(prefix, pathName, exclude) {
+    //TODO cachify using manifest, so map of file to its hash and latest version
+    //number, and insert the last as stamp.
     exclude = exclude || [];
     var stamp;
     var ext = Path.extname(pathName).slice(1);
     if (~exclude.indexOf(ext)) return pathName;
     try {
-	stamp = calcStamp(pathName);
-	
+        stamp = calcStamp(pathName); 
     } catch(e) { console.log('Failed to stamp '.red + pathName.green + ' err: '.red + e);
 		 return pathName;
 	       }
@@ -129,7 +143,7 @@ function makeStyleBlock(args) {
             e.type = 'text/css';
             if (e.indexOf('http') === 0)
                 e.href = trailWith(e.name, '.css');
-            else e.href = trailWith(path + e.name, '.css');
+            else e.href = cachify(trailWith(path + e.name, '.css'));
             delete e.name;
             result += makeTag('link', e);
         }
@@ -138,7 +152,7 @@ function makeStyleBlock(args) {
             var data;
             if (e.indexOf('http') === 0)
                 data = { data: e };
-            else data = { data: Path.join(path , e) };
+            else data = { data: cachify(Path.join(path , e)) };
             result += Plates.bind(style, data, map);
         }
     });
@@ -155,14 +169,14 @@ function makeScriptBlock(args) {
     var script = getPartial(args.partialsDir, 'script'); 
     var result = '';
         array.forEach(function(e) {
-            e = trailWith(e, '.js');
-            var data = { data: Path.join(path, e) };
+            e = Path.join(path, trailWith(e, '.js'));
+            e = cachify(e);
+            var data = { data: e };
             result += Plates.bind(script, data, map);
         });
     // log(result);
     return result + '\n';   
 }
-
 
 function makeTag(tag, attrs, unary) {
     var result = '<' + tag;
@@ -172,8 +186,8 @@ function makeTag(tag, attrs, unary) {
         if (a === 'innerHtml') innerHtml = attrs[a];
         else result += ' ' + a + '=' + '\'' + attrs[a] + '\'';
     });
-    result += '>' + innerHtml;
-    if (!unary) result += '</' + tag + '>';
+    if (unary) result += '/>';
+    else result += '>' + innerHtml + '</' + tag + '>';
     
     return result;   
 }
@@ -247,12 +261,6 @@ function buildMenuTree(tree) {
     return str;
 }
 
-// function addTo_Blocks(js, css) {
-//     log('-----', partialsCollection._scriptBlock);
-//     partialsCollection._scriptBlock += makePartial('scriptBlock', { files: js});
-//     log('-----', partialsCollection._scriptBlock);
-//     partialsCollection._linkBlock += makePartial('linkBlock', { files: css});
-// } 
 
 addResources('cssmenu',[] , ['menu.css']);
 addResources('superfish', ['hoverIntent.js', 'superfish.js', 'startSuperfish.js']);
@@ -262,19 +270,20 @@ function makeMenu(args) {
         superfish: { 
             start: '<div class="ie-dropdown-fix" > <div id="navigation">' +
                 '<ul id="nav" class="menu sf-menu">',
-            end: '</ul></div></div><div class="clear"></div>',
-            js : [
-                'hoverIntent'
-                ,'superfish'
-                ,'startSuperfish'
-            ],
-            css : ['superfish'] }
+            end: '</ul></div></div><div class="clear"></div>'
+            // js : [
+            //     'hoverIntent'
+            //     ,'superfish'
+            //     ,'startSuperfish'
+            // ],
+            // css : ['superfish']
+        }
         ,css: {
             start: '<div class="ie-dropdown-fix" > <div id="navigation">' +
                 '<ul id="nav" class="menu">',
-            end: '</ul></div></div><div class="clear"></div>',
-            js: [],
-            css: ['menu']
+            end: '</ul></div></div><div class="clear"></div>'
+            // js: [],
+            // css: ['menu']
         }
     };
     var menu = menus[args.type];
@@ -311,7 +320,7 @@ function makeFlexSlider(slides) {
     // addTo_Blocks(js, css);
     
     function makeSlide(s) {
-        return '<li><img src="' + s.url + 
+        return '<li><img src="' + cachify(s.url) + 
             '"><div class="slide-caption"><h3>' + 
             s.title + '</h3> </div> </li>';
     }
@@ -368,20 +377,25 @@ function makeSlideShow(args) {
 
 addResources('showhide', ['showhide.js'], ['showhide.css']);
 function makeShowHide(args) {
-    // if (uid === 1) {
-    //     var js = [
-    //         'showhide'
-    //     ];
-    //     var css = ['showhide'];
-    //     addTo_Blocks(js, css);
-    // }
-    
     var wrapper = getPartial(args.partialsDir, 'html/showhide');
     var wrappee = getPartial(args.partialsDir, args.showhide);
     wrapper = wrapper.replace(/uniqueid/g, 'showhide' + uid++);
     wrapper = wrapper.replace('inserthere', wrappee);
     return wrapper;
 }
+
+function makeCachifyPartial(list) {
+    list = list || [];
+    var start = "<script type='text/javascript'>\n  function cachify(path) {\n" +
+        "    var map = {\n";
+    var end = "\n    };\n    return map[path] || path; }\n</script>";
+    list = list.map(function(p) {
+        return '      "' + p.toString() + '": "' + cachify(p) + '"';
+    });
+    list = list.join(',\n');
+    return start + list + end;
+}
+
 
 function render(args) {
     if (args.showhide) {
@@ -422,11 +436,13 @@ function render(args) {
     }
     var str = args.src.green;
     if (args.out) {
-        saveFile(args.root + args.pathOut + args.out, template);   
+        //TODO
+        saveFile(args.root + args.pathOut + args.out, cachifyTemplate(template));   
         str+= ' >> ' + args.out.blue;
         // log('>>' + args.out);
     }
     log(str);
+    // log(args.mapping);
     // log(template);
     
     return template;
@@ -455,17 +471,32 @@ function makeUnaryTags(args) {
     });
     return  result + '\n';   
 }
+function makeImageTags(images) {
+    images = images || {}; 
+    var result = {};
+    Object.keys(images).forEach(function(e) {
+        result[e] = makeTag('img', { src: images[e] }, true);
+    });
+    return result;
+}
 
 function processPartials(partials) {
     uid = 1;
     partialsCollection = addProperties(defaultPartials, partials.ids);
+    partialsCollection = addProperties(partialsCollection, makeImageTags(partials.images));
     Object.keys(partials).forEach(function(k) {
         // addDirToMonitor(partials[k]);
         partials[k] = partials[k] || [];
         partials[k] = util.isArray(partials[k]) ? partials[k] : [partials[k]];
         partials[k].forEach(function(d) {
             var partial = makePartial(k, d);
-            if (d.id) partialsCollection[d.id] = partial;
+            if (d.id) {
+                partialsCollection[d.id] = partial;   
+                // if (d.mapping) mappings[d.id] = d.mapping;
+            }
+            else {
+                // if (d.mapping) mappings[d.out] = d.mapping;
+            }
         });
     });
     // log(util.inspect(partialsCollection, { colors: true }));
@@ -491,6 +522,50 @@ var builders = {
     ,menu: { f: makeMenu }
     ,template: { f: render }
 };
+
+function buildMap(templates) {
+    var mappings = {};
+    var inner = {};
+    templates.forEach(function(t) {
+        var id = t.id || t.out;
+        if (!id) log('Warning: '.red + 'template with source ' + t.src + ' has no id or out');
+        else {
+            mappings[id] = t;
+        }
+    });
+    templates = mappings;
+    function walk(mappings) {
+        Object.keys(mappings).forEach(function(m) {
+            var mappedTo = mappings[m];
+            if (Array.isArray(mappedTo)) {
+                mappings[m] = mappedTo.map(function(id) {
+                    if (templates[id]) {
+                        inner[id] = templates[id];
+                        delete templates[id];
+                        return inner[id];
+                    }
+                    else if (inner[id]) {
+                        return inner[id];
+                    } 
+                    return id;
+                });
+            }
+            else if (templates[mappedTo]) {
+                inner[mappedTo] = mappings[m] = templates[mappedTo] ;
+                delete templates[mappedTo];
+            }
+            else if (inner[mappings[m]]) {
+                mappings[m] = inner[mappings[m]] ;
+            } 
+        });
+    }
+    Object.keys(mappings).forEach(function(m) {
+        var template = mappings[m];
+        if (template.mapping) walk(template.mapping);
+    }); 
+        
+    return templates;
+}
 
 function makePartial(name, args) {
     var maker = builders[name];
@@ -587,12 +662,18 @@ function build(dataFileName) {
     var firstLinkBlock = Array.isArray(buildData.partials.linkBlock) ?
         buildData.partials.linkBlock[0] : 
         buildData.partials.linkBlock;
+    
+    Object.keys(extraCss).forEach(function(key) {
+        if (~buildData.extras.indexOf(key)) {
+            if (extraCss[key])
+                firstLinkBlock.files = firstLinkBlock.files.concat(extraCss[key]); 
+        }
+    });
+    
     Object.keys(extraJs).forEach(function(key) {
         if (~buildData.extras.indexOf(key)) {
             if (extraJs[key])
                 firstScriptBlock.files = firstScriptBlock.files.concat(extraJs[key]); 
-            if (extraCss[key])
-                firstLinkBlock.files = firstScriptBlock.files.concat(extraCss[key]); 
         }
     });
 
@@ -607,13 +688,23 @@ function build(dataFileName) {
                 length: 10,
                 prefix: '_'
             } : buildData.cachify;
-        calcStamp = getCalcStamp(buildData.stamp); 
+        calcStamp = getCalcStamp(Path.join(buildData.paths.root, buildData.paths.www) , buildData.cachify); 
+        
+        cachify = (function(pathName) {
+            return stamp(buildData.cachify.prefix, pathName, buildData.cachify.exclude);
+        });
+        defaultPartials.cachify = makeCachifyPartial(buildData.cachify.list);
     }
     else cachify = function(pathName) { return pathName; };
+    
     
     // log(util.inspect(buildData, { colors: true }));
     processPartials(buildData.partials || {});
     
+    //TODO print out nice tree using mappings:
+    var map = buildMap(buildData.partials.template);
+    
+    if (buildData.verbose && buildData.printMap) log(util.inspect(map, { depth:10 }));
     log('Finished rendering');
 }
 

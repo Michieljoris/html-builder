@@ -312,10 +312,11 @@ var images = {
 }
 
 var develop_mode = process.env.DEVELOP; 
-develop_mode = false;
+develop_mode = true;
 // develop_mode = false;
 var exports = {
     verbose: true
+    ,printMap: false
     // ,monitor: true
     ,prettyPrintHtml: false
     // ,tagIdPostfix: '__' //can be overridden per template
@@ -328,7 +329,6 @@ var exports = {
         ,out:'built' 
         ,js: 'js'
     }
-    ,cachify: !develop_mode 
     /*
       If cachify if falsy resources will be requested as is, without a
       stamp. Which means bb-server will send them with max-age=0 and
@@ -365,19 +365,46 @@ var exports = {
       have to use the linux command touch on it first.
       
       
-      Manifest?? 
+      Possibly implement a manifest, so a file that maps filename to its hash
+      and version number, you could get away with a much smaller stamp. Possibly
+      two char if you have variable length and let bb-server recognize the stamp
+      by a prefix. Only risk is to loose the manifest.
     */ 
-    
+    // ,cachify: !develop_mode 
+    // ,cachify: true
     //hash or mtime, query or modified filename
-    // ,stamp : {
-    //     exclude: [] //for instance ['pdf', 'doc']
-    
-    // var crypto = require('crypto');
-    // var hashes = crypto.getHashes();
-    //     ,method: 'sha1' //mtime or any of the hashes returned from crypto.getHashes()
-    //     ,lengh: 10 //ignored and set to 13 when method === mtime
-    //     ,prefix: '' //for instance 'stamp-'
-    // }
+    ,cachify : {
+        exclude: ['js', 'css', 'jpg'] //for instance ['pdf', 'doc']
+        ,method: 'sha1' //mtime or any of the hashes returned from crypto.getHashes()
+        // (var crypto = require('crypto');
+        // var hashes = crypto.getHashes(); )
+        ,length: 10 //ignored and set to 13 when method === mtime
+        ,prefix: '__' //for instance 'stamp-'
+        //make sure to add a 'cachify' id in the head, or before any javascript
+        //that might want to use the cachify function:
+        ,list: [
+            'images/slides/tab_about_us.jpg',
+            'images/slides/tab_accredited_training.jpg',
+            'images/slides/tab_professional_development.jpg',
+            'images/slides/tab_resources.jpg',
+            "images/slides/PD_Environment_and_experiences.jpg",
+            "images/slides/PD_Inspired_educator.jpg",
+            "images/slides/PD_Observing_and_documenting.jpg",
+            "images/slides/PD_cooperative_behaviour.jpg",
+            "images/slides/PD_identifying_at_risk_childen.jpg",
+            "images/slides/PD_managing_risk.jpg",
+            "images/slides/PD_reflective_practice.jpg",
+            "images/slides/courses_Diploma_Childrens_services.jpg",
+            "images/slides/courses_Diploma_Management.jpg",
+            "images/slides/courses_certiv.jpg",
+            "images/slides/home_assessment.jpg",
+            "images/slides/home_page_Early_Childhood_Education_and_Care_training.jpg",
+            "images/slides/tab_accredited_training.jpg",
+            "images/slides/tab_professional_development.jpg",
+            "images/slides/tab_resources.jpg",
+            'images/slides/tab_about_us.jpg'
+        ]
+    } 
     //group the script and link blocks and concatenate all files listed in a block
     ,concatenate: !develop_mode 
     //make sure to load the resources for custom components, the files get added
@@ -399,6 +426,7 @@ var exports = {
         // ,['ytcarousel', '/build/html/ytcarousel.html']
     ]
     
+    
     //Every partial generates a string. How the partial is generated
     //depends on its type. Each type can define more than one partial
     //of that type by assigning an array of definitions instead of
@@ -409,23 +437,22 @@ var exports = {
     ,partials: {
         ids: {
             title: '<title>Firstdoor - Leaders in developing capability</title>'
-            ,image_courses: '<img class="" src="images/slides/tab_accredited_training.jpg" />'
-            ,image_aboutus: '<img class="" src="images/slides/tab_about_us.jpg" />'
-            ,image_pd: '<img class="" src="images/slides/tab_professional_development.jpg" />'
-            ,image_resources: '<img class="" src="images/slides/tab_resources.jpg" />'
-            ,image_blog: '<img class="" src="images/slides/tab_blog.jpg" />'
-            ,skewer:'<script src="http://localhost:9090/skewer"></script>'
+            // ,image_courses: '<img class="" src="images/slides/tab_accredited_training.jpg" />'
+            // ,image_aboutus: '<img class="" src="images/slides/tab_about_us.jpg" />'
+            // ,image_pd: '<img class="" src="images/slides/tab_professional_development.jpg" />'
+            // ,image_resources: '<img class="" src="images/slides/tab_resources.jpg" />'
+            // ,image_blog: '<img class="" src="images/slides/tab_blog.jpg" />'
+            ,skewer:develop_mode ? '<script src="http://localhost:9090/skewer"></script>' : ' '
             ,addthis1: '<script type="text/javascript">var addthis_config = {"data_track_addressbar":true};</script>'
             ,addthis2: '<script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=michieljoris"></script>'
             ,sharethis1:'<script type="text/javascript">var switchTo5x=true;</script>'
             ,sharethis2:'<script type="text/javascript" src="http://w.sharethis.com/button/buttons.js"></script>'
             ,sharethis3: '<script type="text/javascript">stLight.options({publisher: "014e0e6b-5c75-4f02-aa39-abe6833f9f4d", doNotHash: false, doNotCopy: false, hashAddressBar: false});</script>'
             // ,recaptcha: '<script type="text/javascript" src="http://www.google.com/recaptcha/api/js/recaptcha_ajax.js"></script>''
-            ,recaptcha: '<script type="text/javascript" src="js/recaptcha_ajax.js"></script>'
+            // ,recaptcha: '<script type="text/javascript" src="js/recaptcha_ajax.js"></script>'
             ,fragment: '<meta name="fragment" content="!">'
             // ,firebug: '<script type="text/javascript" src="https://getfirebug.com/firebug-lite-debug.js></script>"'
         }
-        //TODO, only one linkblock possible, not an array of them I think
         ,metaBlock : {
             id: 'meta',
             tags: [ { charset:'utf-8' }
@@ -542,7 +569,7 @@ var exports = {
                 // ,partials: 'build/editable/aboutus'
                 ,mapping: {
                     sidebar: 'html/sidebar'
-                    ,image: 'image_aboutus'
+                    // ,image: 'image_aboutus'
                     ,rightBar: 'rightbar'
                     // ,slogan: 'slogan'
                     // ,slideShow: 'flex',
@@ -608,7 +635,7 @@ var exports = {
                 ,out : 'view-courses.html'
                 ,mapping: {
                     sidebar: 'html/sidebar'
-                    ,image: 'image_courses'
+                    // ,image: 'image_courses'
                     ,rightBar: 'rightbar'
                     // ,slogan: 'slogan'
                     // ,slideShow: 'flex',
@@ -623,7 +650,7 @@ var exports = {
                 ,out : 'view-resources.html'
                 ,mapping: {
                     sidebar: 'html/sidebar'
-                    ,image: 'image_resources'
+                    // ,image: 'image_resources'
                     ,contents: 'html/resources'
                     ,rightBar: 'rightbar'
                 }}
@@ -661,73 +688,49 @@ var exports = {
                 }}
             
             //Not shown at the moment:
-            //Blog
-            ,{ 
-                src: 'views/view_blog_partial.html'
-                ,out : 'view-blog.html'
-                ,mapping: {
-                    sidebar: 'html/sidebar'
-                    ,rightBar: 'rightbar'
-                    // ,image: 'image_blog'
-                    // ,slogan: 'slogan'
-                    // ,slideShow: 'flex',
-                    // ,contents: 'markdown/resources.md'
-                }}
-            //Epic editor
-            ,{
-                src: 'views/view_epic_partial.html'
-                ,out : 'view-epic.html'
-                ,mapping: {
-                    // sidebar: 'html/sidebar'
-                    // ,slogan: 'html/slogan'
-                    // ,slideShow: 'flex',
-                    // homeContents: 'markdown/welcome.md'
-                }}
-            //Chat
-            ,{
-                src: 'views/view_chat_partial.html'
-                ,out : 'view-chat.html'
-                ,mapping: {
-                    left: 'html/chat.html',
-                    right: 'markdown/chat.md'
-                }}
-            //FileBrowser
-            ,{
-                src: 'views/view_filebrowser_partial.html'
-                ,out : 'view-filebrowser.html'
-                ,mapping: {
-                    left: 'html/chat.html',
-                    right: 'markdown/chat.md'
-                }}
+            // //Blog
+            // ,{ 
+            //     src: 'views/view_blog_partial.html'
+            //     ,out : 'view-blog.html'
+            //     ,mapping: {
+            //         sidebar: 'html/sidebar'
+            //         ,rightBar: 'rightbar'
+            //         // ,image: 'image_blog'
+            //         // ,slogan: 'slogan'
+            //         // ,slideShow: 'flex',
+            //         // ,contents: 'markdown/resources.md'
+            //     }}
+            // //Epic editor
+            // ,{
+            //     src: 'views/view_epic_partial.html'
+            //     ,out : 'view-epic.html'
+            //     ,mapping: {
+            //         // sidebar: 'html/sidebar'
+            //         // ,slogan: 'html/slogan'
+            //         // ,slideShow: 'flex',
+            //         // homeContents: 'markdown/welcome.md'
+            //     }}
+            // //Chat
+            // ,{
+            //     src: 'views/view_chat_partial.html'
+            //     ,out : 'view-chat.html'
+            //     ,mapping: {
+            //         left: 'html/chat.html',
+            //         right: 'markdown/chat.md'
+            //     }}
+            // //FileBrowser
+            // ,{
+            //     src: 'views/view_filebrowser_partial.html'
+            //     ,out : 'view-filebrowser.html'
+            //     ,mapping: {
+            //         left: 'html/chat.html',
+            //         right: 'markdown/chat.md'
+            //     }}
             
             //Main layout
-            ,{ id: 'page' 
-               ,src: 'html/basicAngularPage.html'
-               ,tagIdPostfix: '' //can be overridden per template
-               
-               //Maps tag ids to partial ids. Tag ids have to be
-               //postfixed with two dashes in the template. Partials
-               //with an extension will be loaded from the partials
-               //folder for this template. Markdown files will be
-               //converted to html. Partials in an array will be
-               //concatenated before inserted at the tag id element
-               ,mapping: {
-                   head: ['title', 'meta',  'html/ieshim','skewer',
-                          // 'firebug',
-                          'sharethis1', 'sharethis2', 'sharethis3',
-                          // 'headJsBlock',
-                          'myLinkBlock'],
-                  
-                   "ng:app": ['html/body.html', 'myJsBlock',
-                              // '_scriptBlock'
-                              ,'html/google_analytics.html'
-                             ]
-               }
-             }
-            ,{ src: 'page' 
+            ,{ id: 'body'
+               ,src: 'html/body.html' 
                ,tagIdPostfix: '--' //can be overridden per template
-               ,pathOut: ''
-               ,out: 'www/index.html' //optional, relative to root
                ,mapping: {
                    message: 'html/message'
                    ,logo: 'html/logo'
@@ -743,6 +746,38 @@ var exports = {
                    ,footer4: 'html/footerLegal'
                    ,footerBottom: 'html/footerBottom'
                    // ,'feedback': 'html/feedback'
+               }
+             }
+            ,{  
+               src: 'html/basicAngularPage.html'
+               ,tagIdPostfix: '' //can be overridden per template
+               ,pathOut: ''
+               ,out: 'www/index.html' //optional, relative to root
+               
+               //Maps tag ids to partial ids. Tag ids have to be
+               //postfixed with two dashes in the template. Partials
+               //with an extension will be loaded from the partials
+               //folder for this template. Markdown files will be
+               //converted to html. Partials in an array will be
+               //concatenated before inserted at the tag id element
+               
+               //Make sure to have the cachify partial included in the head if
+               //you want to dynamically load resources from javascript, but
+               //want to retrieve cachified versions. Include the resources
+               //under the cachify.list
+               ,mapping: {
+                   head: ['title', 'meta',  'html/ieshim','skewer',
+                          // 'firebug',
+                          'sharethis1', 'sharethis2', 'sharethis3',
+                          // 'headJsBlock',
+                          'myLinkBlock'
+                          ,'cachify'
+                         ],
+                  
+                   "ng:app": ['body', 'myJsBlock',
+                              // '_scriptBlock'
+                              ,'html/google_analytics.html'
+                             ]
                }
              }
             
