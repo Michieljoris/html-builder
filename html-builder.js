@@ -113,7 +113,7 @@ function getPartial(partialsPath, name) {
     // log('getting partial', name);
     if (name.indexOf('.') === -1) {
         partial = partialsCollection[name];   
-        if (partial) return partial;
+        if (partial) return typeof partial === 'function' ? partial() : partial;
     }
     partialName = name;
     // log('searching for partial on disk');
@@ -211,8 +211,8 @@ function makeTag(tag, attrs, unary) {
 }
 
 function makeRouterMapping(route, partial, cntl) {
-    if (partial[0] !== '/') partial = '/' + partial;
-    return ',["' + route + '", "' + partial + '"' +
+    // if (partial[0] !== '/') partial = '/' + partial;
+    return ',["' + route + '", cachify("' + partial + '")' +
         (cntl ? ', ' + cntl : '')  +
         ']\n'; 
 }
@@ -402,14 +402,14 @@ function makeShowHide(args) {
     return wrapper;
 }
 
-function makeCachifyPartial(list) {
+function makeCachifyPartial(list, length) {
+    console.log('Calculating stamps for all of above and more..');
     list = list || [];
     var start = "<script type='text/javascript'>\n  function cachify(path) {\n" +
         "    var map = {\n";
-    var end = "\n    };\n    return map[path] || path; }\n</script>";
-    
+    var end = "\n    };\n  return map[path] ? map[path] + '/' + path : path; }\n</script>";
     list = list.map(function(p) {
-        return '      "' + p.toString() + '": "' + cachify(p) + '"';
+        return '      "' + p.toString() + '": "' + (cachify(p) === p ? '' : cachify(p).slice(0,length)) + '"';
     });
     list = list.join(',\n');
     return start + list + end;
@@ -715,7 +715,10 @@ function build(dataFileName) {
         cachify = (function(pathName) {
             return stamp(buildData.cachify.prefix, pathName, buildData.cachify.exclude);
         });
-        defaultPartials.cachify = makeCachifyPartial(buildData.cachify.list);
+        buildData.cachify.list = buildData.cachify.list.concat(buildData.routes.map(function(r) { return r[1]; }));
+        defaultPartials.cachify = function() { return makeCachifyPartial(buildData.cachify.list,
+                                                                         buildData.cachify.prefix.length +
+                                                                         buildData.cachify.length); };
     }
     else cachify = function(pathName) { return pathName; };
     

@@ -374,7 +374,7 @@ var exports = {
     // ,cachify: true
     //hash or mtime, query or modified filename
     ,cachify : {
-        exclude: ['js', 'css', 'jpg'] //for instance ['pdf', 'doc']
+        exclude: ['pdf', 'doc', 'docx'] //for instance ['pdf', 'doc']
         ,method: 'sha1' //mtime or any of the hashes returned from crypto.getHashes()
         // (var crypto = require('crypto');
         // var hashes = crypto.getHashes(); )
@@ -417,18 +417,18 @@ var exports = {
     //to the first script and link blocks.
     ,extras: ['flex-slider', 'cssmenu', 'showhide']
     ,routes: [
-        ['home', '/built/view-home.html', 'HomeCntl'],
-        ['aboutus', '/built/view-aboutus.html'],
-        ['pd', '/built/view-pd.html'],
-        ['resources', '/built/view-resources.html', 'ResourcesCntl'],
-        ['courses', '/built/view-courses.html'],
-        ['quiz', '/built/view-quiz.html'],
+        ['home','built/view-home.html', 'HomeCntl'],
+        ['aboutus', 'built/view-aboutus.html'],
+        ['pd', 'built/view-pd.html'],
+        ['resources', 'built/view-resources.html', 'ResourcesCntl'],
+        ['courses', 'built/view-courses.html'],
+        ['quiz', 'built/view-quiz.html'],
         // ['blog', '/built/view-quiz.html'],
-        ['epic', '/built/view-epic.html', 'EpicCntl'],
-        ['chat', '/built/view-chat.html', 'chatCntl'],
-        ['filebrowser', '/built/view-filebrowser.html', 'filebrowserCntl'],
-        ['contactus', '/built/view-contactus.html', 'contactusCntl'],
-        ['enrol', '/built/view-enroll.html']
+        ['epic', 'built/view-epic.html', 'EpicCntl'],
+        ['chat', 'built/view-chat.html', 'chatCntl'],
+        ['filebrowser', 'built/view-filebrowser.html', 'filebrowserCntl'],
+        ['contactus', 'built/view-contactus.html', 'contactusCntl'],
+        ['enrol', 'built/view-enroll.html']
         // ,['ytcarousel', '/build/html/ytcarousel.html']
     ]
     

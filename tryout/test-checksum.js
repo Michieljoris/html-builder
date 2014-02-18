@@ -26,20 +26,20 @@ log($.html());
 
 
 // log($(html))
-// function cachify(path) { return 'abc'; }
-// function makeCachifyPartial(list) {
-//     list = list || [];
-//     var start = "<script type='text/javascript'>\n  function cachify(path) {\n" +
-//         "    var map = {\n";
-//     var end = "\n    };\n    return map[path] || path; }\n</script>";
-//     list = list.map(function(p) {
-//         return '      "' + p.toString() + '": "' + cachify(p) + '"';
-//     });
-//     list = list.join(',\n');
-//     return start + list + end;
-// }
+function cachify(path) { return 'abc'; }
+function makeCachifyPartial(list) {
+    list = list || [];
+    var start = "<script type='text/javascript'>\n  function cachify(path) {\n" +
+        "    var map = {\n";
+    var end = "\n    };\n    return map[path] ? map.path + '/' + path : path; }\n</script>";
+    list = list.map(function(p) {
+        return '      "' + p.toString() + '": "' + cachify(p).slice(0,12) + '"';
+    });
+    list = list.join(',\n');
+    return start + list + end;
+}
 
-// console.log(makeCachifyPartial([ 'bla/com', 'ok.bla' ]));
+console.log(makeCachifyPartial([ 'bla/com', 'ok.bla' ]));
 
 // function format(fmt, args) {
 //     if (fmt.indexOf('%d') != -1 ||
