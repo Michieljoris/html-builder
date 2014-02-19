@@ -28,7 +28,6 @@ var uid;
 var calcStamp, cachify;
 var manifest = {};
 
-
 var stamps;
 
 function cachifyTemplate(html, options) {
@@ -232,7 +231,7 @@ function makeRouterBlock(routes) {
 }
 
 
-function buildMenuTree(tree) {
+function buildMenuTree(tree, hashBang) {
     tree = tree || [];
     
     // var str = '<div class="ie-dropdown-fix" > <div id="navigation">' +
@@ -247,8 +246,11 @@ function buildMenuTree(tree) {
     function makeLi(entry) {
         
         var href = entry.href ||
-            (entry.route ? '#!/' + removeSlashes(entry.route) : undefined) ||
+            (entry.route ? hashBang + removeSlashes(entry.route) : undefined) ||
             '#';
+        // var href = entry.href ||
+        //     (entry.route ? '#!/' + removeSlashes(entry.route) : undefined) ||
+        //     '#';
         
         var li = '<li><a href="' + href + '"' + 
             (entry.scroll ? (' class="scroll"') : '') +
@@ -305,9 +307,11 @@ function makeMenu(args) {
         }
     };
     var menu = menus[args.type];
+    hashBang = args.hashBang;
     if (!menu) return '';
     // addTo_Blocks(menu.js, menu.css);
-    return menu.start + buildMenuTree(args.tree) + menu.end;
+    return menu.start + buildMenuTree(args.tree, args.hashBang ?  '#!/': '') + menu.end;
+;
     
 }
 
@@ -610,6 +614,7 @@ function build(dataFileName) {
     paths.partials = trailWith( paths.partials || 'build', '/');
     // paths.monitor = trailWith( paths.monitor || 'build', '/');
     paths.out = Path.join(paths.www , trailWith( paths.out || 'built', '/'));
+    
     paths.js = Path.join(paths.www , trailWith( paths.js || 'js', '/'));
     
     log = !buildData.verbose || !testing ?  function () {}: function() {
