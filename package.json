@@ -1,6 +1,6 @@
 {
     "name": "html-builder",
-    "version": "0.1.7",
+    "version": "0.1.8",
     "description": "Don't write html, use a layout and and populate it with partials.",
     "main": "html-builder.js",
     "auth": "Michiel van Oosten",
