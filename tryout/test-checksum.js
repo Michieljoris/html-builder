@@ -1,45 +1,32 @@
-
+var extent = require('node.extend');
 var crypto = require('crypto');
 var fs = require('fs');
 var colors = require('colors');
 var hashes = crypto.getHashes();
 var Path = require('path');
-var log = function() {
-    console.log.apply(console, arguments); };
-var a = 'bla.pdf';
-log(Path.extname(a));
-var html = "asdfasdfds<a href='bla'>link</a>   <a href='two' >l2</a>";
-var cheerio = require('cheerio'),
-    $ = cheerio.load(html);
-// log($('a'));
-var r = $('a').map(function(i, e) {
-    log(i, e.attribs.href);
-    e.attribs.href = 'okthen';
-    return e;
-});
-
-log($.html());
-// log($.html());
-// $('a').attr('href', 'replace').html();;
-
-// log($.html());
 
 
-// log($(html))
-function cachify(path) { return 'abc'; }
-function makeCachifyPartial(list) {
-    list = list || [];
-    var start = "<script type='text/javascript'>\n  function cachify(path) {\n" +
-        "    var map = {\n";
-    var end = "\n    };\n    return map[path] ? map.path + '/' + path : path; }\n</script>";
-    list = list.map(function(p) {
-        return '      "' + p.toString() + '": "' + cachify(p).slice(0,12) + '"';
+
+function parseProps(settings) {
+    var result = {};
+    Object.keys(settings).forEach(function(s) {
+        var value = settings[s];
+        var result = extend(result, s.split(' ')
+                            .filter(function(t) { return t; })
+                            .map(function(t) { var temp = {};
+                                               temp[t] = value;
+                                               return temp;
+                                             }));
+        
     });
-    list = list.join(',\n');
-    return start + list + end;
+    // console.log('cachedir: ', settingsDir);
+    return result;
 }
 
-console.log(makeCachifyPartial([ 'bla/com', 'ok.bla' ]));
+console.log(
+    parseProps({ "a b c": 'somevalue', "d e f c" : "second value" })
+);
+
 
 // function format(fmt, args) {
 //     if (fmt.indexOf('%d') != -1 ||
@@ -73,36 +60,6 @@ console.log(makeCachifyPartial([ 'bla/com', 'ok.bla' ]));
 //         url = path.slice(prefix.length + 1 + options.stamp.length);
 //         console.log('url', url, 'hash', hash);
 
-//         // exists = false;
-
-//         // if (opts.prefix !== '' &&
-//         //     uri.indexOf('/' + opts.prefix) === 0) {
-//         //     exists = true;
-//         // } else if (assets[true_path]) {
-//         //     exists = true;
-//         // }
-
-//         // if (exists === false) {
-//         //     if (_cache[true_path]) {
-//         //         if (_cache[true_path].exists === true) {
-//         //             exists = true;
-//         //         }
-//         //     } else {
-//         //         // Would we ever want to use cachify for non-file resources?
-//         //         if (existsSync(true_path)) {
-//         //             exists = true;
-//         //             _cache[true_path] = {exists: true};
-//         //         } else {
-//         //             // Hmm potential DOS Attack here... maybe we shouldn't cache
-//         //             // checking disk every time isn't that bad - just like static
-//         //             // middleware
-//         //             // Or use an LRU?
-//         //             console.warn('Cachify like URL, but no file found');
-//         //             _cache[true_path] = {exists: false};
-//         //         }
-//         //     }
-//         // }
-//         // console.log(m);   
 //     } 
 //     return { path: url, stamp: hash };
 // }

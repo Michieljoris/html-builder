@@ -428,7 +428,8 @@ var exports = {
         ['chat', 'built/view-chat.html', 'chatCntl'],
         ['filebrowser', 'built/view-filebrowser.html', 'filebrowserCntl'],
         ['contactus', 'built/view-contactus.html', 'contactusCntl'],
-        ['enrol', 'built/view-enroll.html']
+        ['enrol', 'built/view-enroll.html'],
+        ['sitemap', 'sitemap.html']
         // ,['ytcarousel', '/build/html/ytcarousel.html']
     ]
     
