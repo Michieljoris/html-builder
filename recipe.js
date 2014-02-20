@@ -374,8 +374,8 @@ var exports = {
     // ,cachify: true
     //hash or mtime, query or modified filename
     ,cachify : {
-        exclude: ['pdf', 'doc', 'docx'] //for instance ['pdf', 'doc']
-        ,method: 'sha1' //mtime or any of the hashes returned from crypto.getHashes()
+        // exclude: ['pdf', 'doc', 'docx'] //for instance ['pdf', 'doc']
+        method: 'sha1' //mtime or any of the hashes returned from crypto.getHashes()
         // (var crypto = require('crypto');
         // var hashes = crypto.getHashes(); )
         ,length: 10 //ignored and set to 13 when method === mtime

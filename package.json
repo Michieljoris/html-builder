@@ -1,32 +1,52 @@
 {
-    "name": "html-builder",
-    "version": "0.1.8",
-    "description": "Don't write html, use a layout and and populate it with partials.",
-    "main": "html-builder.js",
-    "auth": "Michiel van Oosten",
-    "email": "mail@michieljoris.net",
-    "repository": {
-	"type": "git",
-	"url": "git://github.com/michieljoris/html-builder"
-    },
-    "dependencies": {
-	"plates": "~0.4.8",
-	"htmlparser2": "~2.5.2",
-	"node-markdown": "0.1.x",
-	"filemonitor": "0.1.x",
-	"optimist": "0.4.x",
-	"colors": "*"
-    },
-    "devDependencies": {},
-    "scripts": {
-	"test": "echo \"Error: no test specified\" && exit 1"
-    },
-    "repository": "",
-    "keywords": [
-	"html",
-	"template",
-	"partials"
-    ],
-    "license": "MIT"
+  "name": "html-builder",
+  "description": "Don't write html, use a layout and and populate it with partials.",
+  "version": "0.1.10",
+  "homepage": "https://github.com/michieljoris/html-builder",
+  "keywords": [
+    "html",
+    "template",
+    "partials"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/michieljoris/html-builder.git"
+  },
+  "author": {
+    "name": "Michiel van Oosten",
+    "email": "mail@axion5.net",
+    "url": "http://www.axion5.net/"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "http://github.com/michieljoris/firstdoor/blob/master/LICENSE.txt"
+    }
+  ],
+  "main": "html-builder.js",
+  "engines": {
+    "node": ">= 0.8.x"
+  },
+  "dependencies": {
+    "plates": "~0.4.8",
+    "htmlparser2": "~2.5.2",
+    "node-markdown": "0.1.x",
+    "filemonitor": "0.1.x",
+    "optimist": "0.4.x",
+    "colors": "*",
+    "cheerio": "0.13.x",
+    "extend": "*"
+  },
+  "devDependencies": {
+    "fs-extra": "0.8.x"
+  },
+  "private": false,
+  "scripts": {
+    "start": "node ./server/server.js"
+  },
+  "subdomain": "firstdoor",
+  "domains": [
+    "www.firstdoor.com.au",
+    "firstdoor.com.au"
+  ]
 }
-

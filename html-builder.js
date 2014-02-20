@@ -14,6 +14,7 @@ var colors = require('colors');
 var Path = require('path');
 var crypto = require('crypto');
 var cheerio = require('cheerio');
+var extend = require('extend');
 
 var log;
 
@@ -90,12 +91,27 @@ function addResources(id, js, css) {
     extraCss[id] = css;
 }
 
-function saveFile(name, str){
-    fs.writeFileSync(
-        // path.join(process.cwd(), name),
-        name,
-        str,
-        'utf8');
+function saveFile(pathName, str){
+    var oldHash, newHash;
+    try {
+        var sum = crypto.createHash('sha1');
+        var orig = fs.readFileSync(pathName);
+        sum.update(fs.readFileSync(pathName));
+        oldHash = sum.digest('hex');
+    } catch(e) {} 
+    if (oldHash) {
+        sum = crypto.createHash('sha1');
+        sum.update(str);
+        newHash = sum.digest('hex');
+        // console.log(newHash, oldHash);
+        if (newHash === oldHash) return false;
+    }
+    // console.log(orig.length, orig.toString());
+    // console.log('-=====================================');
+    // console.log(str.length, str);
+    // console.log('Saving ' + pathName);
+    fs.writeFileSync(pathName, str, 'utf8');
+    return true;
 }
 
 function endsWith(str, trail) {
@@ -244,7 +260,6 @@ function buildMenuTree(tree, hashBang) {
     }
     
     function makeLi(entry) {
-        
         var href = entry.href ||
             (entry.route ? hashBang + removeSlashes(entry.route) : undefined) ||
             '#';
@@ -407,11 +422,11 @@ function makeShowHide(args) {
 }
 
 function makeCachifyPartial(list, length) {
-    console.log('Calculating stamps for all of above and more..');
+    console.log('Calculating and adding stamps for all of above and more.');
     list = list || [];
     var start = "<script type='text/javascript'>\n  function cachify(path) {\n" +
         "    var map = {\n";
-    var end = "\n    };\n  return map[path] ? map[path] + '/' + path : path; }\n</script>";
+    var end = "\n    };\n   return map[path] ? map[path] + '/' + path : path; }\n</script>";
     list = list.map(function(p) {
         return '      "' + p.toString() + '": "' + (cachify(p) === p ? '' : cachify(p).slice(0,length)) + '"';
     });
@@ -627,13 +642,13 @@ function build(dataFileName) {
     log('Root dir: ' + buildData.paths.root);
     
     partialsDir = buildData.paths.root + buildData.paths.partials;
+    
     builders.template.defArgs = {
         root: paths.root,
         partialsDir: partialsDir,
         tagIdPostfix: buildData.tagIdPostfix,
         prettyPrintHtml: buildData.prettyPrintHtml,
-        pathOut: paths.out,
-        cachify: buildData.cachify
+        pathOut: paths.out
     };
     
     builders.linkBlock.defArgs = {
@@ -651,7 +666,9 @@ function build(dataFileName) {
         var routes  = makeRouterBlock(buildData.routes);
         // routes = '/*' + routes + '*/';
         routerJsString = routerJsString.replace(/inserthere/, routes);
-        saveFile(paths.root + trailWith(paths.js, '/') + 'router.js', routerJsString);
+        log(' >> ' + 'router.js'.blue);
+        // console.log(Path.join(paths.root, paths.www, 'router.js'));
+        saveFile(Path.join(paths.root, paths.www,  'router.js'), routerJsString);
     }
     
     function concat(blocks, ext) {
@@ -674,7 +691,8 @@ function build(dataFileName) {
                         return ('//*' + f + '*//\n' + data.toString());
                     }).join('\n;\n');
                 var fileName = trailWith(block.id, ext);
-                fs.writeFileSync(Path.join(paths.root, paths.www, fileName), data);
+                // fs.writeFileSync(Path.join(paths.root, paths.www, fileName), data);
+                saveFile(Path.join(paths.root, paths.www, fileName), data);
                 return { id: block.id, files: [fileName], path: '' };
             });
         }
@@ -709,12 +727,13 @@ function build(dataFileName) {
     
     stamps = {};
     if (buildData.cachify) {
-        buildData.cachify = typeof buildData.cachify === 'boolean' ?
-            {   exclude: [],
-                method: 'sha1',
-                length: 10,
-                prefix: '_'
-            } : buildData.cachify;
+        buildData.cachify = typeof buildData.cachify === 'boolean' ? {} : buildData.cachify;
+        buildData.cachify = extend({   exclude: [],
+                                       method: 'sha1',
+                                       length: 10,
+                                       prefix: '_'
+                                   } , buildData.cachify);
+        
         calcStamp = getCalcStamp(Path.join(buildData.paths.root, buildData.paths.www) , buildData.cachify); 
         
         cachify = (function(pathName) {
@@ -724,8 +743,12 @@ function build(dataFileName) {
         defaultPartials.cachify = function() { return makeCachifyPartial(buildData.cachify.list,
                                                                          buildData.cachify.prefix.length +
                                                                          buildData.cachify.length); };
+        builders.template.defArgs.cachify = buildData.cachify;
     }
-    else cachify = function(pathName) { return pathName; };
+    else {
+        cachifyTemplate = function(html) { return html; };
+        cachify = function(pathName) { return pathName; };   
+    }
     
     // log(util.inspect(buildData, { colors: true }));
     processPartials(buildData.partials || {});

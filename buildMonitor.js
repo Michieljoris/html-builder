@@ -24,6 +24,7 @@ function monitor(dataFileName) {
     var isMdown = /.*\.mdown?$/;
     var isMarkdown = /.*\.markdown?$/;
     var isMd = /.*\.md?$/;
+    var isJs = /.*\.js?$/;
     // function puts(error, stdout, stderr) { sys.puts(stdout); }
     // log(datajs);
 
@@ -44,7 +45,8 @@ function monitor(dataFileName) {
             isMdown.test(ev.filename) ||
             isMarkdown.test(ev.filename) ||
             isMd.test(ev.filename) || 
-            isHtml.test(ev.filename)
+            isHtml.test(ev.filename) ||
+            isJs.test(ev.filename)
             // || true
            )
             
@@ -103,5 +105,6 @@ var monitoredDirs = [];
 var dir = (argv._ && argv._[0]) || process.cwd() + '/build/';
 monitoredDirs.push(dir);
 build();
+console.log(dir);
 monitor(dir + 'recipe.js');
 
