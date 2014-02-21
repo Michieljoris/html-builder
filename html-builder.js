@@ -262,7 +262,7 @@ function buildMenuTree(tree, hashBang) {
     function makeLi(entry) {
         var href = entry.href ||
             (entry.route ? hashBang + removeSlashes(entry.route) : undefined) ||
-            '#';
+            '';
         // var href = entry.href ||
         //     (entry.route ? '#!/' + removeSlashes(entry.route) : undefined) ||
         //     '#';
@@ -426,7 +426,7 @@ function makeCachifyPartial(list, length) {
     list = list || [];
     var start = "<script type='text/javascript'>\n  function cachify(path) {\n" +
         "    var map = {\n";
-    var end = "\n    };\n   return map[path] ? map[path] + '/' + path : path; }\n</script>";
+    var end = "\n    };console.log(path,map[path]);\n   return map[path] ? map[path] + '/' + path : path; }\n</script>";
     list = list.map(function(p) {
         return '      "' + p.toString() + '": "' + (cachify(p) === p ? '' : cachify(p).slice(0,length)) + '"';
     });
@@ -671,7 +671,7 @@ function build(dataFileName) {
         saveFile(Path.join(paths.root, paths.www,  'router.js'), routerJsString);
     }
     
-    function concat(blocks, ext) {
+    function concat(blocks, ext, out) {
         if (blocks) {
             blocks = Array.isArray(blocks) ? blocks : [blocks];
             blocks = blocks.map(function(block) {
@@ -692,8 +692,8 @@ function build(dataFileName) {
                     }).join('\n;\n');
                 var fileName = trailWith(block.id, ext);
                 // fs.writeFileSync(Path.join(paths.root, paths.www, fileName), data);
-                saveFile(Path.join(paths.root, paths.www, fileName), data);
-                return { id: block.id, files: [fileName], path: '' };
+                saveFile(Path.join(paths.root, paths.www, out, fileName), data);
+                return { id: block.id, files: [fileName], path: out };
             });
         }
         return blocks;
@@ -721,8 +721,11 @@ function build(dataFileName) {
     });
 
     if (buildData.concatenate) {
-        buildData.partials.scriptBlock = concat(buildData.partials.scriptBlock, '.js');
-        buildData.partials.linkBlock = concat(buildData.partials.linkBlock, '.css');
+        log('Concatenating all js and css');
+        buildData.partials.scriptBlock =
+            concat(buildData.partials.scriptBlock, '.js', firstScriptBlock.path);
+        buildData.partials.linkBlock =
+            concat(buildData.partials.linkBlock, '.css', firstLinkBlock.path);
     }
     
     stamps = {};
