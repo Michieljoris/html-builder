@@ -426,7 +426,7 @@ function makeCachifyPartial(list, length) {
     list = list || [];
     var start = "<script type='text/javascript'>\n  function cachify(path) {\n" +
         "    var map = {\n";
-    var end = "\n    };console.log(path,map[path]);\n   return map[path] ? map[path] + '/' + path : path; }\n</script>";
+    var end = "\n    };/*console.log(path,map[path]);*/\n   return map[path] ? map[path] + '/' + path : path; }\n</script>";
     list = list.map(function(p) {
         return '      "' + p.toString() + '": "' + (cachify(p) === p ? '' : cachify(p).slice(0,length)) + '"';
     });
@@ -617,6 +617,10 @@ function build(dataFileName) {
     if (!dataFileName)
         dataFileName = process.cwd() + '/build/recipe.js';
     var buildData = evalFile(dataFileName);
+    if (!buildData.partials) {
+        log('Error..');
+        return;
+    }
     var partialsDir;
     if (!buildData) {
         buildData = {
