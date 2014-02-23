@@ -32,6 +32,7 @@ var manifest = {};
 var stamps;
 
 function cachifyTemplate(html, options) {
+    // return html;
     $ = cheerio.load(html);
     $('a').filter(function(i, e) {
         var href = e.attribs.href;
@@ -44,7 +45,9 @@ function cachifyTemplate(html, options) {
         e.attribs.href =  cachify(href);
         return e;
     });
-    return $.html();
+    var output = $.html();;
+    return output.replace(/&apos;/g,"'");
+    // return unescape($.html());
 }
 
 function getCalcStamp(root, settings) {
@@ -219,9 +222,10 @@ function makeTag(tag, attrs, unary) {
         if (a === 'innerHtml') innerHtml = attrs[a];
         else result += ' ' + a + '=' + '\'' + attrs[a] + '\'';
     });
+    
     if (unary) result += '/>';
     else result += '>' + innerHtml + '</' + tag + '>';
-    
+    console.log('tag', result);
     return result;   
 }
 
@@ -452,18 +456,26 @@ function render(args) {
     args.mapping = args.mapping || [];
     
     var selector = {};
+        // var flag;
     Object.keys(args.mapping).forEach(function(tagId) {
         var partialIds = args.mapping[tagId];
         partialIds = util.isArray(partialIds) ? partialIds : [partialIds];
         
         var html = '';
         partialIds.forEach(function(partialId) {
+            // var partial = getPartial(partialsDir, partialId);
+            // if (partialId == 'meta')
+            // {
+            //     flag = true;
+            //     console.log(partial, args.src);
+            // }
             html += getPartial(partialsDir, partialId);
         });
         selector[tagId + args.tagIdPostfix] = html;
+        // if (flag) console.log(html);
     });
-    
     template = Plates.bind(template, selector); 
+    // if (flag) console.log(template);
    
     if (args.prettyPrintHtml) {
         template = htmlFormatter.format(template,{
@@ -474,7 +486,11 @@ function render(args) {
     }
     var str = args.src.green;
     if (args.out) {
+        
+        // if (args.out === 'www/index.html') console.log(template);
         //TODO
+        var cachified = cachifyTemplate(template, args.cachify);
+        if (args.out === 'view-courses.html') console.log(template);
         saveFile(args.root + args.pathOut + args.out, cachifyTemplate(template, args.cachify));   
         str+= ' >> ' + args.out.blue;
         // log('>>' + args.out);
@@ -528,6 +544,8 @@ function processPartials(partials) {
         partials[k] = util.isArray(partials[k]) ? partials[k] : [partials[k]];
         partials[k].forEach(function(d) {
             var partial = makePartial(k, d);
+            // if (d.out === 'www/index.html') console.log(partial);
+            // if (k === 'metaBlock') console.log(partial);
             if (d.id) {
                 partialsCollection[d.id] = partial;   
                 // if (d.mapping) mappings[d.id] = d.mapping;

@@ -1,7 +1,7 @@
 {
   "name": "html-builder",
   "description": "Don't write html, use a layout and and populate it with partials.",
-  "version": "0.1.13",
+  "version": "0.1.14",
   "homepage": "https://github.com/michieljoris/html-builder",
   "keywords": [
     "html",
