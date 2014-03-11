@@ -225,7 +225,7 @@ function makeTag(tag, attrs, unary) {
     
     if (unary) result += '/>';
     else result += '>' + innerHtml + '</' + tag + '>';
-    console.log('tag', result);
+    // console.log('tag', result);
     return result;   
 }
 
@@ -490,7 +490,7 @@ function render(args) {
         // if (args.out === 'www/index.html') console.log(template);
         //TODO
         var cachified = cachifyTemplate(template, args.cachify);
-        if (args.out === 'view-courses.html') console.log(template);
+        // if (args.out === 'view-courses.html') console.log(template);
         saveFile(args.root + args.pathOut + args.out, cachifyTemplate(template, args.cachify));   
         str+= ' >> ' + args.out.blue;
         // log('>>' + args.out);
@@ -729,14 +729,14 @@ function build(dataFileName) {
         buildData.partials.linkBlock;
     
     Object.keys(extraCss).forEach(function(key) {
-        if (~buildData.extras.indexOf(key)) {
+        if (buildData.extras && ~buildData.extras.indexOf(key)) {
             if (extraCss[key])
                 firstLinkBlock.files = firstLinkBlock.files.concat(extraCss[key]); 
         }
     });
     
     Object.keys(extraJs).forEach(function(key) {
-        if (~buildData.extras.indexOf(key)) {
+        if (buildData.extras && ~buildData.extras.indexOf(key)) {
             if (extraJs[key])
                 firstScriptBlock.files = firstScriptBlock.files.concat(extraJs[key]); 
         }
