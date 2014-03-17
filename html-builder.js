@@ -178,13 +178,15 @@ function makeStyleBlock(args) {
             e.rel = 'stylesheet';
             e.type = 'text/css';
             if (e.indexOf('http') === 0)
-                e.href = trailWith(e.name, '.css');
-            else e.href = cachify(trailWith(path + e.name, '.css'));
+                // e.href = trailWith(e.name, '.css');
+                e.href = e.name;
+            // else e.href = cachify(trailWith(path + e.name, '.css'));
+            else e.href = cachify(path + e.name);
             delete e.name;
             result += makeTag('link', e);
         }
         else {
-            e = trailWith(e, '.css');
+            // e = trailWith(e, '.css');
             var data;
             if (e.indexOf('http') === 0)
                 data = { data: e };
@@ -205,7 +207,8 @@ function makeScriptBlock(args) {
     var script = getPartial(args.partialsDir, 'script'); 
     var result = '';
         array.forEach(function(e) {
-            e = Path.join(path, trailWith(e, '.js'));
+            // e = Path.join(path, trailWith(e, '.js'));
+            e = Path.join(path, e);
             e = cachify(e);
             var data = { data: e };
             result += Plates.bind(script, data, map);
