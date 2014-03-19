@@ -70,7 +70,7 @@ module.exports = {
     // If there is a file that should be loaded when require()ing this 
     // folder-as-a-package, declare this file here, relative to our package 
     // structure.
-    "main": "html-builder.js",
+    "main": "src/html-builder.js",
     // Essentially, which Node.js platforms do we support? These are glob
     // like expressions supported by the 
     // [npm semantic version parser](https://npmjs.org/doc/semver.html), 

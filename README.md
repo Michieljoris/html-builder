@@ -3,6 +3,8 @@ html-builder
 
 Completeyly hacked together as requirements came up, but it works!
 
+Use nodejs modules in the browser! No browserify!
+
 It now concatenates your css and js files in production mode and adds a cache
 stamp to all static resources, to work together with
 [bb-server](github.com/michieljoris/bb-server).

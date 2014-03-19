@@ -14,10 +14,10 @@ var colors = require('colors');
 var Path = require('path');
 var cheerio = require('cheerio');
 var extend = require('extend');
-var demodularify = require('src/demodularify');
-var concat = require('src/concat');
+var demodularify = require('./demodularify');
+var concat = require('./concat');
 
-var utils = require('src/utils');
+var utils = require('./utils');
 
 var saveFile = utils.saveFile;
 var trailWith = utils.trailWith;
