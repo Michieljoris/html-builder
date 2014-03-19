@@ -1,0 +1,22 @@
+{"a.js": 0,"modules/m1.js": 4,"c.js": 11,"b.coffee": 18}
+//*a.js*//
+console.log('This is a.js');
+
+;
+//*modules/m1.js*//
+(function(require, module, exports) {
+This is module m1
+
+
+})(qdn.require, qdn.m['./modules/m1.js']={exports:{}}, qdn.m['./modules/m1.js'].exports);
+;
+//*c.js*//
+line 1
+line 2
+line 3
+c.js line 4
+
+;
+//*b.coffee*//
+this is coffeescript source code..
+;

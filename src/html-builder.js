@@ -728,9 +728,9 @@ function build(dataFileName) {
         if (buildData.concatenate) {
             log('Concatenating all js and css');
             buildData.partials.scriptBlock =
-                concat(paths, buildData.partials.scriptBlock, '.js', firstScriptBlock.path);
+                concat(paths, buildData.partials.scriptBlock, '.js');
             buildData.partials.linkBlock =
-                concat(paths, buildData.partials.linkBlock, '.css', firstLinkBlock.path);
+                concat(paths, buildData.partials.linkBlock, '.css');
         }
     
         stamps = {};

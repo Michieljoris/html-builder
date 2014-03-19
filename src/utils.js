@@ -24,13 +24,19 @@ module.exports.saveFile = function saveFile(pathName, str){
     return true;
 };
   
-  
-  
-module.exports.endsWith = function endsWith(str, trail) {
+function endsWith(str, trail) {
     return (str.substr(str.length-trail.length, str.length-1) === trail);
 };
-
+  
+module.exports.endsWith = endsWith;
 
 module.exports.trailWith = function trailWith(str, trail) {
     return str ? (str + (!endsWith(str, trail) ? trail : '')) : undefined;
 };
+
+module.exports.inModulesPath = function(path) {
+    if (path.indexOf('modules/') === 0) return '.' + path.slice(7);
+    if (path.indexOf('/modules/') === 0) return '.' + path.slice(8);
+    return false;
+}
+

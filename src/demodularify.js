@@ -2,14 +2,9 @@ var denodify = require('denodify');
 var VOW = require('dougs_vow');
 var Path = require('path');
 var fs = require('fs-extra');
+var inModulesPath = require('./utils').inModulesPath;
 
 var qdnString = "var qdn=qdn||{require:function(module) {return qdn.m[module].exports;},m:{}};";
-
-function inModulesPath(path) {
-    if (path.indexOf('modules/') === 0) return '.' + path.slice(7);
-    if (path.indexOf('/modules/') === 0) return '.' + path.slice(8);
-    return false;
-}
 
 function insertScriptList(files, index, wwwPath, moduleId) {
     var vow = VOW.make();
