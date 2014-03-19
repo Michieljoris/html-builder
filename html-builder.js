@@ -12,9 +12,16 @@ var md = require("node-markdown").Markdown;
 // var exec = require('child_process').exec;
 var colors = require('colors');
 var Path = require('path');
-var crypto = require('crypto');
 var cheerio = require('cheerio');
 var extend = require('extend');
+var demodularify = require('src/demodularify');
+var concat = require('src/concat');
+
+var utils = require('src/utils');
+
+var saveFile = utils.saveFile;
+var trailWith = utils.trailWith;
+var endsWith = utils.endsWith;
 
 var log;
 
@@ -94,38 +101,6 @@ function addResources(id, js, css) {
     extraCss[id] = css;
 }
 
-function saveFile(pathName, str){
-    var oldHash, newHash;
-    try {
-        var sum = crypto.createHash('sha1');
-        var orig = fs.readFileSync(pathName);
-        sum.update(fs.readFileSync(pathName));
-        oldHash = sum.digest('hex');
-    } catch(e) {} 
-    if (oldHash) {
-        sum = crypto.createHash('sha1');
-        sum.update(str);
-        newHash = sum.digest('hex');
-        // console.log(newHash, oldHash);
-        if (newHash === oldHash) return false;
-    }
-    // console.log(orig.length, orig.toString());
-    // console.log('-=====================================');
-    // console.log(str.length, str);
-    // console.log('Saving ' + pathName);
-    fs.writeFileSync(pathName, str, 'utf8');
-    return true;
-}
-
-function endsWith(str, trail) {
-    return (str.substr(str.length-trail.length, str.length-1) === trail);
-}
-
-
-function trailWith(str, trail) {
-    return str ? (str + (!endsWith(str, trail) ? trail : '')) : undefined;
-}
-
 function getPartial(partialsPath, name) {
     var partial, path, partialName; 
     // log('getting partial', name);
@@ -198,21 +173,21 @@ function makeStyleBlock(args) {
     return result + '\n';   
 }
 
+
 function makeScriptBlock(args) {
-    // console.log('Making script block\n', args);
     var path = (typeof args.path === 'undefined') ? 'js' : args.path;
-    var array = args.files;
+    var files = args.files;
     var map = Plates.Map();
     map.where('type').is('text/javascript').use('data').as('src');
     var script = getPartial(args.partialsDir, 'script'); 
     var result = '';
-        array.forEach(function(e) {
-            // e = Path.join(path, trailWith(e, '.js'));
-            e = Path.join(path, e);
-            e = cachify(e);
-            var data = { data: e };
-            result += Plates.bind(script, data, map);
-        });
+    files.forEach(function(e) {
+        // e = Path.join(path, trailWith(e, '.js'));
+        e = Path.join(path, e);
+        e = cachify(e);
+        var data = { data: e };
+        result += Plates.bind(script, data, map);
+    });
     // log(result);
     return result + '\n';   
 }
@@ -633,6 +608,48 @@ function makePartial(name, args) {
     return maker.f(args);
 }
 
+function processBlocks(partials, extras) {
+    partials.scriptBlock = Array.isArray(partials.scriptBlock) ?
+        partials.scriptBlock : [partials.scriptBlock];
+    partials.linkBlock = Array.isArray(partials.linkBlock) ?
+        partials.linkBlock : [partials.linkBlock];
+    
+    var extraLinkBlock;
+    partials.linkBlock.some(function(lb) {
+        if (lb.extra) {
+            extraLinkBlock = lb;
+            return true;
+        }
+        return false;
+    }); 
+    if (!extraLinkBlock) extraLinkBlock = partials.linkBlock[partials.linkBlock.length-1];
+    
+    var extraScriptBlock;
+    partials.linkBlock.some(function(lb) {
+        if (lb.extra) {
+            extraScriptBlock = lb;
+            return true;
+        }
+        return false;
+    }); 
+    if (!extraScriptBlock) extraScriptBlock = partials.linkBlock[partials.linkBlock.length-1];
+    
+    Object.keys(extraCss).forEach(function(key) {
+        if (extras && ~extras.indexOf(key)) {
+            if (extraCss[key])
+                extraLinkBlock.files = extraLinkBlock.files.concat(extraCss[key]); 
+        }
+    });
+    
+    Object.keys(extraJs).forEach(function(key) {
+        if (extras && ~extras.indexOf(key)) {
+            if (extraJs[key])
+                extraScriptBlock.files = extraScriptBlock.files.concat(extraCss[key]); 
+        }
+    });
+    
+}
+
 var testing = true;
 function build(dataFileName) {
     if (!dataFileName)
@@ -683,7 +700,9 @@ function build(dataFileName) {
     
     builders.scriptBlock.defArgs = {
         partialsDir: partialsDir,
-        js: 'js'
+        js: 'js',
+        wwwPath: Path.resolve(paths.root, paths.www)
+        
     };
     
     if (buildData.routes) {
@@ -696,95 +715,57 @@ function build(dataFileName) {
         saveFile(Path.join(paths.root, paths.www,  'router.js'), routerJsString);
     }
     
-    function concat(blocks, ext, out) {
-        if (blocks) {
-            blocks = Array.isArray(blocks) ? blocks : [blocks];
-            blocks = blocks.map(function(block) {
-                block.files = Array.isArray(block.files) ? block.files : [block.files];
-                var data =  block.files
-                    .map(function(f) {
-                        return Path.join(paths.root , paths.www, block.path + trailWith(f, ext));
-                    })
-                    .filter(function(f) {
-                        if (fs.existsSync(f)) return true;
-                        else log('Warning: '.red + 'Not found: ' + f.yellow);
-                        return false;
-                    })
-                    .map(function(f) {
-                        var data = fs.readFileSync(f);
-                        // return ('//*' + f + '*//\n' + data.toString().slice(0,30));
-                        return ('//*' + f + '*//\n' + data.toString());
-                    }).join('\n;\n');
-                var fileName = trailWith(block.id, ext);
-                // fs.writeFileSync(Path.join(paths.root, paths.www, fileName), data);
-                saveFile(Path.join(paths.root, paths.www, out, fileName), data);
-                return { id: block.id, files: [fileName], path: out };
+    processBlocks(buildData.partials, buildData.extras);
+    
+    demodularify(paths.js, buildData.partials.scriptBlock, callback);
+    
+    function callback(err, scriptBlock) {
+        if (err) {
+            console.log(err);
+            return;
+        }
+        buildData.partials.scriptBlock = scriptBlock;
+        if (buildData.concatenate) {
+            log('Concatenating all js and css');
+            buildData.partials.scriptBlock =
+                concat(paths, buildData.partials.scriptBlock, '.js', firstScriptBlock.path);
+            buildData.partials.linkBlock =
+                concat(paths, buildData.partials.linkBlock, '.css', firstLinkBlock.path);
+        }
+    
+        stamps = {};
+        if (buildData.cachify) {
+            buildData.cachify = typeof buildData.cachify === 'boolean' ? {} : buildData.cachify;
+            buildData.cachify = extend({   exclude: [],
+                                           method: 'sha1',
+                                           length: 10,
+                                           prefix: '_'
+                                       } , buildData.cachify);
+        
+            calcStamp = getCalcStamp(Path.join(buildData.paths.root, buildData.paths.www) , buildData.cachify); 
+        
+            cachify = (function(pathName) {
+                return stamp(buildData.cachify.prefix, pathName, buildData.cachify.exclude);
             });
+            buildData.cachify.list = buildData.cachify.list.concat(buildData.routes.map(function(r) { return r[1]; }));
+            defaultPartials.cachify = function() { return makeCachifyPartial(buildData.cachify.list,
+                                                                             buildData.cachify.prefix.length +
+                                                                             buildData.cachify.length); };
+            builders.template.defArgs.cachify = buildData.cachify;
         }
-        return blocks;
-    } 
-    
-    var firstScriptBlock = Array.isArray(buildData.partials.scriptBlock) ?
-        buildData.partials.scriptBlock[0] : 
-        buildData.partials.scriptBlock;
-    var firstLinkBlock = Array.isArray(buildData.partials.linkBlock) ?
-        buildData.partials.linkBlock[0] : 
-        buildData.partials.linkBlock;
-    
-    Object.keys(extraCss).forEach(function(key) {
-        if (buildData.extras && ~buildData.extras.indexOf(key)) {
-            if (extraCss[key])
-                firstLinkBlock.files = firstLinkBlock.files.concat(extraCss[key]); 
+        else {
+            cachifyTemplate = function(html) { return html; };
+            cachify = function(pathName) { return pathName; };   
         }
-    });
     
-    Object.keys(extraJs).forEach(function(key) {
-        if (buildData.extras && ~buildData.extras.indexOf(key)) {
-            if (extraJs[key])
-                firstScriptBlock.files = firstScriptBlock.files.concat(extraJs[key]); 
-        }
-    });
-
-    if (buildData.concatenate) {
-        log('Concatenating all js and css');
-        buildData.partials.scriptBlock =
-            concat(buildData.partials.scriptBlock, '.js', firstScriptBlock.path);
-        buildData.partials.linkBlock =
-            concat(buildData.partials.linkBlock, '.css', firstLinkBlock.path);
+        // log(util.inspect(buildData, { colors: true }));
+        processPartials(buildData.partials || {});
+    
+        var map = buildMap(buildData.partials.template);
+    
+        if (buildData.verbose && buildData.printMap) log(util.inspect(map, { depth:10 }));
+        log('Finished rendering');
     }
-    
-    stamps = {};
-    if (buildData.cachify) {
-        buildData.cachify = typeof buildData.cachify === 'boolean' ? {} : buildData.cachify;
-        buildData.cachify = extend({   exclude: [],
-                                       method: 'sha1',
-                                       length: 10,
-                                       prefix: '_'
-                                   } , buildData.cachify);
-        
-        calcStamp = getCalcStamp(Path.join(buildData.paths.root, buildData.paths.www) , buildData.cachify); 
-        
-        cachify = (function(pathName) {
-            return stamp(buildData.cachify.prefix, pathName, buildData.cachify.exclude);
-        });
-        buildData.cachify.list = buildData.cachify.list.concat(buildData.routes.map(function(r) { return r[1]; }));
-        defaultPartials.cachify = function() { return makeCachifyPartial(buildData.cachify.list,
-                                                                         buildData.cachify.prefix.length +
-                                                                         buildData.cachify.length); };
-        builders.template.defArgs.cachify = buildData.cachify;
-    }
-    else {
-        cachifyTemplate = function(html) { return html; };
-        cachify = function(pathName) { return pathName; };   
-    }
-    
-    // log(util.inspect(buildData, { colors: true }));
-    processPartials(buildData.partials || {});
-    
-    var map = buildMap(buildData.partials.template);
-    
-    if (buildData.verbose && buildData.printMap) log(util.inspect(map, { depth:10 }));
-    log('Finished rendering');
 }
 
 // if (argv.h || argv.help) {

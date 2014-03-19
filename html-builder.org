@@ -1,5 +1,13 @@
 * html-builder
-** concat all js and css files   
+** substitue module objects in script block file list with more file entries
+add module before the file extension so that bb-server knows to strip it before
+finding the file on disk.
+** concat all js files in a block:
+0 js:modulename 145 coffee 200 sweetjs 200 coffee:modulename
+Four scripts, with line numbers. Every bundle could be requested as
+name.bundle so bb-server knows what it is, then split it up, recast the parts,
+concat the result and cache it. 
+   
 ** cachifying resources
 put timestamped files in the source code at every build(as set in the
 recipe per extension), timestamp gets stripped off by bb-server anyway

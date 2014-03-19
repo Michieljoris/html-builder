@@ -34,7 +34,7 @@ module.exports = {
     // [npm](http://npmjs.org) enforces the X.Y.Z semantic version 
     // scheme that is described at [http://semver.org/](http://semver.org/)
     // and we should follow this versioning for our package.
-    "version": "0.1.8",
+    // "version": "0.1.8",
     // URL to the homepage for this package.
     "homepage": "https://github.com/michieljoris/html-builder",
     // An array of keywords used to describe this package to search engines,
@@ -97,7 +97,9 @@ module.exports = {
 	"optimist": "0.4.x",
 	"colors": "*",
 	"cheerio": "0.13.x",
-        "extend": "*"
+        "extend": "*",
+        "denodify": "0.1.*",
+        "dougs_vow": "*"
     },
     // What dependencies are useful only for developers?
     // Installed when we `npm install` in our working directory, but not 

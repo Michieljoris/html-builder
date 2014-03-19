@@ -1,7 +1,6 @@
 {
   "name": "html-builder",
   "description": "Don't write html, use a layout and and populate it with partials.",
-  "version": "0.1.15",
   "homepage": "https://github.com/michieljoris/html-builder",
   "keywords": [
     "html",
@@ -35,7 +34,9 @@
     "optimist": "0.4.x",
     "colors": "*",
     "cheerio": "0.13.x",
-    "extend": "*"
+    "extend": "*",
+    "denodify": "0.1.*",
+    "dougs_vow": "*"
   },
   "devDependencies": {
     "fs-extra": "0.8.x"
@@ -48,5 +49,6 @@
   "domains": [
     "www.firstdoor.com.au",
     "firstdoor.com.au"
-  ]
+  ],
+  "version": "0.2.3"
 }
