@@ -1,5 +1,6 @@
 var fs = require('fs-extra');
 var crypto = require('crypto');
+var Path = require('path');
   
 module.exports.saveFile = function saveFile(pathName, str){
     var oldHash, newHash;
@@ -34,9 +35,10 @@ module.exports.trailWith = function trailWith(str, trail) {
     return str ? (str + (!endsWith(str, trail) ? trail : '')) : undefined;
 };
 
-module.exports.inModulesPath = function(path) {
-    if (path.indexOf('modules/') === 0) return '.' + path.slice(7);
-    if (path.indexOf('/modules/') === 0) return '.' + path.slice(8);
+module.exports.isModule = function(path) {
+    return Path.extname(Path.basename(path, Path.extname(path))) === '.nm';
+    // if (path.indexOf('modules/') === 0) return '.' + path.slice(7);
+    // if (path.indexOf('/modules/') === 0) return '.' + path.slice(8);
     return false;
-}
+};
 

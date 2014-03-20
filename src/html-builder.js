@@ -175,7 +175,8 @@ function makeStyleBlock(args) {
 
 
 function makeScriptBlock(args) {
-    var path = (typeof args.path === 'undefined') ? 'js' : args.path;
+    
+    // var path = (typeof args.path === 'undefined') ? 'js' : args.path;
     var files = args.files;
     var map = Plates.Map();
     map.where('type').is('text/javascript').use('data').as('src');
@@ -183,7 +184,8 @@ function makeScriptBlock(args) {
     var result = '';
     files.forEach(function(e) {
         // e = Path.join(path, trailWith(e, '.js'));
-        e = Path.join(path, e);
+        if (typeof e !== 'string') e = e[0] || 'unknown_module';
+        // e = Path.join(path, e);
         e = cachify(e);
         var data = { data: e };
         result += Plates.bind(script, data, map);
@@ -717,12 +719,12 @@ function build(dataFileName) {
     
     processBlocks(buildData.partials, buildData.extras);
     
-    demodularify(paths.js, buildData.partials.scriptBlock, callback);
+    demodularify(buildData.partials.scriptBlock, paths.www, callback);
     
     function callback(err, scriptBlock) {
         if (err) {
-            console.log(err);
-            return;
+            console.log("Error denodifying script list".red, err);;
+            // return;
         }
         buildData.partials.scriptBlock = scriptBlock;
         if (buildData.concatenate) {

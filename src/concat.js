@@ -8,7 +8,7 @@ var utils = require('./utils');
 var saveFile = utils.saveFile;
 var trailWith = utils.trailWith;
 var endsWith = utils.endsWith;
-var inModulesPath = require('./utils').inModulesPath;
+var isModule = require('./utils').isModule;
 
 //If there are scripts in a language other
 //than javascript in the block, the files will still be
@@ -34,7 +34,7 @@ function concat(block, bundle) {
 	})
 	.map(function(f) {
 	    var data = fs.readFileSync(f.abs).toString();
-            if (bundle && inModulesPath(f.rel)) {
+            if (bundle && isModule(f.rel)) {
                 data = denodify.wrap(f.rel, data);
             }
 	    data = ('//*' + f.rel + '*//\n' + data) + '\n;\n';

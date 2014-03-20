@@ -10,7 +10,7 @@ var filemon = require('filemonitor');
 require('colors');
 var argv = require('optimist').argv;
 
-var build = require('./html-builder.js').build;
+var build = require('../src/html-builder.js').build;
 
 
 // function addDirToMonitor(partial) {
@@ -105,6 +105,6 @@ var monitoredDirs = [];
 var dir = (argv._ && argv._[0]) || process.cwd() + '/build/';
 monitoredDirs.push(dir);
 build();
-console.log(dir);
+// console.log(dir);
 monitor(dir + 'recipe.js');
 
