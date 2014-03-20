@@ -5,7 +5,7 @@ var fs = require('fs-extra');
 var isModule = require('./utils').isModule;
 var trailWith = require('./utils').trailWith;
 
-var qdnString = "var qdn=qdn||{require:function(id,by) {return qdn.m[module].exports;},m:{}};";
+// var qdnString = "var qdn=qdn||{require:function(id,by) {return qdn.m[module].exports;},m:{}};";
 
 
 function insertScriptList(files, index, wwwPath, scriptPath, moduleId) {
@@ -82,7 +82,8 @@ function demodularify(scriptBlock, wwwPath, cb) {
     try {
         fs.statSync(Path.resolve(qdnPath));
     } catch (e) {
-        fs.outputFileSync(Path.resolve(qdnPath), qdnString);
+        console.log('demodularify: scripts/denodify not found!!!'.red);
+        fs.outputFileSync(Path.resolve(qdnPath), denodify.script);
     } 
     var vows = [];
     
