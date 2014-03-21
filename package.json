@@ -22,7 +22,7 @@
       "url": "http://github.com/michieljoris/firstdoor/blob/master/LICENSE.txt"
     }
   ],
-  "main": "html-builder.js",
+  "main": "src/html-builder.js",
   "engines": {
     "node": ">= 0.8.x"
   },

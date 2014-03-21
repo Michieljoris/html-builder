@@ -5,9 +5,6 @@ var fs = require('fs-extra');
 var isModule = require('./utils').isModule;
 var trailWith = require('./utils').trailWith;
 
-// var qdnString = "var qdn=qdn||{require:function(id,by) {return qdn.m[module].exports;},m:{}};";
-
-
 function insertScriptList(files, index, wwwPath, scriptPath, moduleId) {
     var vow = VOW.make();
     // console.log(moduleId);
@@ -15,11 +12,11 @@ function insertScriptList(files, index, wwwPath, scriptPath, moduleId) {
         if (err) vow.breek(err);
         else {
             files[index] = list.map(function(m) { return m.route; });
-            console.log(files);
             vow.keep(); }
     });
     return vow.promise;
 }
+
 
 function processOneScriptBlock(wwwPath, sb, denodifyPath) {
     var vow = VOW.make();
@@ -27,6 +24,7 @@ function processOneScriptBlock(wwwPath, sb, denodifyPath) {
     var files = sb.files;
     var index = 0;
     var containsModules = false;
+    
     files.forEach(function(f) {
         //TODO to be autodetected later by being clever using recast, detective and caching
         //for now just indicate it is a module by clamping it within [ and ]
@@ -34,6 +32,7 @@ function processOneScriptBlock(wwwPath, sb, denodifyPath) {
             containsModules = true;
             vows.push(insertScriptList(files, index, wwwPath, sb.path, f[0]));
         }
+        else vows.push(VOW.kept(sb.files));
         index++;
     }); 
     if (!vows.length) vow.keep(sb);
@@ -41,8 +40,6 @@ function processOneScriptBlock(wwwPath, sb, denodifyPath) {
     else VOW.every(vows).when(
         function() {
             var newList = [];
-            //qdn.js:
-            // var qdn=qdn||{require:function(module) {return qdn.m[module].exports;},m:{}};
             if (containsModules) newList.push(denodifyPath);
             files.forEach(function(f) {
                 if (typeof f === 'string') newList.push(Path.join(sb.path || '', f));
@@ -78,12 +75,12 @@ function deduplicate(blocks) {
 }
 
 function demodularify(scriptBlock, wwwPath, cb) {
-    var qdnPath = Path.join(wwwPath, 'scripts', 'denodify.js');
+    var denodifyPath = Path.join(wwwPath, 'scripts', 'denodify.js');
     try {
-        fs.statSync(Path.resolve(qdnPath));
+        fs.statSync(Path.resolve(denodifyPath));
     } catch (e) {
         console.log('demodularify: scripts/denodify not found!!!'.red);
-        fs.outputFileSync(Path.resolve(qdnPath), denodify.script);
+        fs.outputFileSync(Path.resolve(denodifyPath), denodify.script);
     } 
     var vows = [];
     

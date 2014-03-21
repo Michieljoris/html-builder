@@ -10,6 +10,7 @@ var htmlFormatter = require('./html-formatter.js');
 var md = require("node-markdown").Markdown;
 // var sys = require('sys');
 // var exec = require('child_process').exec;
+var crypto = require('crypto');
 var colors = require('colors');
 var Path = require('path');
 var cheerio = require('cheerio');
@@ -176,6 +177,7 @@ function makeStyleBlock(args) {
 
 function makeScriptBlock(args) {
     
+    console.log('sb');
     // var path = (typeof args.path === 'undefined') ? 'js' : args.path;
     var files = args.files;
     var map = Plates.Map();
@@ -759,9 +761,11 @@ function build(dataFileName) {
             cachifyTemplate = function(html) { return html; };
             cachify = function(pathName) { return pathName; };   
         }
+    console.log('in callback1')    ;
     
         // log(util.inspect(buildData, { colors: true }));
         processPartials(buildData.partials || {});
+    console.log('in callback2')    ;
     
         var map = buildMap(buildData.partials.template);
     
@@ -779,5 +783,5 @@ function build(dataFileName) {
 
 exports.build = build;
 
-// build('./recipe.js');
+build('../recipe.js');
 
