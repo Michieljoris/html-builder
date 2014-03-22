@@ -176,8 +176,6 @@ function makeStyleBlock(args) {
 
 
 function makeScriptBlock(args) {
-    
-    console.log('sb');
     // var path = (typeof args.path === 'undefined') ? 'js' : args.path;
     var files = args.files;
     var map = Plates.Map();
@@ -468,11 +466,11 @@ function render(args) {
     }
     var str = args.src.green;
     if (args.out) {
-        
         // if (args.out === 'www/index.html') console.log(template);
         //TODO
         var cachified = cachifyTemplate(template, args.cachify);
         // if (args.out === 'view-courses.html') console.log(template);
+        console.log(args);
         saveFile(args.root + args.pathOut + args.out, cachifyTemplate(template, args.cachify));   
         str+= ' >> ' + args.out.blue;
         // log('>>' + args.out);
@@ -674,6 +672,7 @@ function build(dataFileName) {
     paths.root = trailWith(paths.root || process.cwd(), '/');
     paths.partials = trailWith( paths.partials || 'build', '/');
     // paths.monitor = trailWith( paths.monitor || 'build', '/');
+    console.log(paths.out);
     paths.out = Path.join(paths.www , trailWith( paths.out || 'built', '/'));
     
     paths.js = Path.join(paths.www , trailWith( paths.js || 'js', '/'));
@@ -783,5 +782,5 @@ function build(dataFileName) {
 
 exports.build = build;
 
-build('../recipe.js');
+// build('../recipe.js');
 

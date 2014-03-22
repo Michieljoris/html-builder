@@ -114,6 +114,7 @@ module.exports = {
     "devDependencies": {
         "fs-extra": "0.8.x"
         // "doccoh": "0.4.1"
+        ,"docco": "*"
     },
     // Should this package be prevented from accidental publishing by npm?
     // The default is false (not hidden), but I include this here for doc
@@ -132,7 +133,8 @@ module.exports = {
     //
     //     npm run-script dist
     "scripts": {
-        "start": "node ./server/server.js"
+        "start": "node ./server/server.js",
+        "docs": "node node_modules/.bin/docco example-recipe.js"
     },
     
     "subdomain": "firstdoor",

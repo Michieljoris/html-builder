@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>example-recipe.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    
+    <ul class="sections">
+        
+          <li id="title">
+              <div class="annotation">
+                  <h1>example-recipe.js</h1>
+              </div>
+          </li>
+        
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-comment">/*global */</span>
+<span class="hljs-keyword">var</span> mainMenuTree = [</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <p>{ label: ‘Home’, icon: ‘’, route: ‘home’
+   // sub: [
+   //     { label: ‘Contact us’, route: ‘contactus’, scroll: true}
+   //     ]
+}</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>];
+
+<span class="hljs-keyword">var</span> slides =  [</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <p>{ url: “images/slides/home_page_Early_Childhood_Education_and_Care_training.jpg”
+  // ,title: ‘Early Childhood Education and Care training’
+  // ,subtitle: ‘Aged care slogan’
+}</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>];
+
+<span class="hljs-keyword">var</span> develop_mode = process.env.NODE_ENV; 
+<span class="hljs-keyword">var</span> exports = {
+    verbose: <span class="hljs-literal">true</span>
+    ,printMap: <span class="hljs-literal">false</span>
+    ,prettyPrintHtml: <span class="hljs-literal">false</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              <p>,tagIdPostfix: ‘__’ //can be overridden per template</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    ,paths: {
+        root: process.cwd(),
+        www: <span class="hljs-string">'www'</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-5">&#182;</a>
+              </div>
+              <p>relative to this root:</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        ,partials: <span class="hljs-string">'build/'</span>  <span class="hljs-comment">//can be overridden per template</span>
+        ,www: <span class="hljs-string">'www'</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-6">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-6">&#182;</a>
+              </div>
+              <p>relative to www:</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        ,out:<span class="hljs-string">'built'</span> 
+        ,js: <span class="hljs-string">'scripts'</span>
+    }
+    <span class="hljs-comment">/*
+      If cachify if falsy resources will be requested as is, without a
+      stamp. Which means bb-server will send them with max-age=0 and
+      expires=[data-in-the-past], which means any caching mechanism will call
+      back to the server to ask for an update.
+      
+      If cachify is truthy all requests for files with the following extensions
+      will be stamped by prepending a sha1 hash checksum to the path to the
+      file, in other words, uniquifying the request for a particular version
+      of a file:
+      
+      css js jpg jpeg gif ico png bmp pict csv doc pdf pls ppt tif tiff eps swf midi
+      mid ttf eot woff svg svgz webp docx xlsx xls pptx ps
+      
+      (https://support.cloudflare.com/hc/en-us/articles/200172516-What-file-extensions-does-CloudFlare-cache-for-static-content-)
+
+      This will only work if the server serving the files is able to strip these
+      stamps before processing the request
+
+      If this option (stamp) is truthy,  by default bb-server sets
+      max-age=[one-year] and expires=[one-year-in-the-future] (see the cache and
+      stamp settings of bb-server) of responses to requests for stamped
+      files. If not turned on it will respond with lots of 404's :-).
+      
+      To opt out for a particular extension, list it under exclude. Requests for
+      these files will be for the real filename, maybe set cache-control:
+      max-age=[1day].
+      
+      To use mtime instead of a hash to uniqify a request for a file with a
+      particular extension, list the extension under mtime. This will speed up
+      html-builder if you are cachefying lots of resources, however it will not
+      work if you replace a newer file with an older one, like a pdf file with a
+      another pdf file of the same name, but created before the first one. You'd
+      have to use the linux command touch on it first.
+      
+      
+      Possibly implement a manifest, so a file that maps filename to its hash
+      and version number, you could get away with a much smaller stamp. Possibly
+      two char if you have variable length and let bb-server recognize the stamp
+      by a prefix. Only risk is to loose the manifest.
+    */</span> 
+    ,cachify: !develop_mode</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-7">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-7">&#182;</a>
+              </div>
+              <p>,cachify: true
+hash or mtime, query or modified filename
+,cachify : {
+    exclude: [‘doc’, ‘docx’] //for instance [‘pdf’, ‘doc’]
+    ,method: ‘sha1’ //mtime or any of the hashes returned from crypto.getHashes()
+    // (var crypto = require(‘crypto’);
+    // var hashes = crypto.getHashes(); )
+    ,length: 10 //ignored and set to 13 when method === mtime
+    ,prefix: ‘__’ //for instance ‘stamp-‘
+    //make sure to add a ‘cachify’ id in the head, or before any javascript
+    //that might want to use the cachify function:
+    ,list: [
+        ‘images/slides/tab_about_us.jpg’,
+        ‘documents/Diploma_Early_Childhood_Course_Guide.pdf’,
+    ]
+} 
+group the script and link blocks and concatenate all files listed in a block</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    ,concatenate: !develop_mode</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-8">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-8">&#182;</a>
+              </div>
+              <p>make sure to load the resources for custom components, the files get added
+to the first script and link blocks.
+,extras: [‘flex-slider’, ‘cssmenu’, ‘showhide’]
+angular routes:
+,routes : [
+    [‘guide’, ‘/built/guideView.html’],
+    [‘template’, ‘/built/guideTemplate.html’, ‘templateCntl’]
+]</p>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-9">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-9">&#182;</a>
+              </div>
+              <p>Every partial generates a string. How the partial is generated
+depends on its type. Each type can define more than one partial
+of that type by assigning an array of definitions instead of
+just one (object) definition to that type. These partials are
+identified by their id. This enables them to uses as the source in
+later defined templates. They don’t need an id if you just want
+to generate a string to save to the file defined in ‘out’.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    ,partials: {
+        ids: {
+            title: <span class="hljs-string">'&lt;title&gt;Scaffold&lt;/title&gt;'</span>
+            ,skewer: develop_mode ? <span class="hljs-string">'&lt;script src="http://localhost:9090/skewer"&gt;&lt;/script&gt;'</span> : <span class="hljs-string">' '</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-10">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-10">&#182;</a>
+              </div>
+              <p>,recaptcha: ‘<script type="text/javascript" src="http://www.google.com/recaptcha/api/js/recaptcha_ajax.js"></script>‘
+,fragment: ‘<meta name="fragment" content="!">‘</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            
+            ,hello_world: <span class="hljs-string">'&lt;h2&gt;Hello world. Build on this scaffold!!!&lt;/h2&gt;'</span>
+        }
+        ,metaBlock : {
+            id: <span class="hljs-string">'meta'</span>,
+            tags: [ { charset:<span class="hljs-string">'utf-8'</span> }
+                    ,{ content:<span class="hljs-string">"IE=edge,chrome=1"</span>,
+                       <span class="hljs-string">"http-equiv"</span>:<span class="hljs-string">"X-UA-Compatible"</span>
+                     }
+                    ,{ content:<span class="hljs-string">""</span>,
+                       name:<span class="hljs-string">"description"</span>
+                     }
+                    ,{ name: <span class="hljs-string">"viewport"</span>
+                       ,content: <span class="hljs-string">"width=device-width, initial-scale=1, maximum-scale=1"</span>}
+                  ]
+        }
+        ,linkBlock:  {
+            id: <span class="hljs-string">'linkBlock'</span>,
+            files:  [</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-11">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-11">&#182;</a>
+              </div>
+              <p>‘bower/normalize.css/normalize.css’
+,’bower/bootstrap/dist/css/bootstrap.css’
+,’bower/foundation/css/foundation.css’
+,’bower/jquery-ui/jquery-ui.custom.css’
+,’bower/angular-ui/build/angular-ui.css’</p>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-12">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-12">&#182;</a>
+              </div>
+              <p>,’vendor/h5bp.css’
+,’vendor/checkboxes.css’</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                
+                ,<span class="hljs-string">'main.css'</span>
+            ]
+            ,path: <span class="hljs-string">'css/'</span>
+        }</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-13">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-13">&#182;</a>
+              </div>
+              <p>order these scriptBlocks in the order that they would be loaded by the
+browser, because any duplicate entries (as added by modules for
+instance) will be removed apart from the first. Usually you would have
+only one block, possibly two if you need to load modules in the head
+of the html document, but you can have as many as you like.  Some
+components (like slideshow or the router for angular) need to load
+their own css and js files, these would be added to the last block, or
+te first block that has the extra:true attribute</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        ,scriptBlock: [
+            {
+                id: <span class="hljs-string">'headJsBlock'</span>,
+                files: [
+                ],
+                path: <span class="hljs-string">'scripts/'</span>
+            },
+            {
+                id: <span class="hljs-string">'jsBlock'</span>,
+                files: [</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-14">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-14">&#182;</a>
+              </div>
+              <p>‘bower/jquery/dist/jquery.js’ //v2.1.0
+,’bower/bootstrap/dist/js/bootstrap.js’
+,’bower/foundation/js/foundation.js’
+,’bower/angular/angular.js’
+,’bower/angular-ui/build/angular-ui.js’
+,’bower/ui-bootstrap-tpls-0.2.0.js’
+,’bower/modernizer/modernizr.js’
+,’bower/jquery-ui/jquery-ui.js’</p>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-15">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-15">&#182;</a>
+              </div>
+              <p>,’vendor/noconsole.js’
+,’vendor/jquery-1.6.2.min.js’
+,’vendor/jquery-1.8.3.min.js’
+,’vendor/jquery-1.9.1.min.js’
+,’vendor/jquery-1.9.1.min.js’</p>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-16">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-16">&#182;</a>
+              </div>
+              <p>,’router’
+,’angular.js’</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                    <span class="hljs-string">'test.coffee'</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-17">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-17">&#182;</a>
+              </div>
+              <p>this will be substitud with the list of required modules,
+in the proper order, also the module enabler script will
+be added before the first module in every block. When this
+block is concatenated all module files will be
+denodify.wrapped. If there are scripts in a language other
+than javascript in the block, the files will still be
+concatenated, but not denodify.wrapped. Instead the
+resulting concatenated file will have an extension of
+.bundle and a first line of what is contained within the
+bundle. Bb-server can then extract this line, split up the
+bundle, recast the parts to js, denodify.wrap the module
+scripts, bundle it up again, cache and send it (as a
+proper js file).</p>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-18">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-18">&#182;</a>
+              </div>
+              <p>The giveaway is the path ‘modules/[dir1/dir2/]’, all
+required and main modules need to be in this
+directory. The main script needs to be in here so
+html-builder knows to add the required script tags here,
+and bb-server needs to know a requested script is a module
+because it needs to denodify.wrap it.
+,’modules/mymodule.nm.js’</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                    
+                    ,[<span class="hljs-string">'modules/mymodule.js'</span>]
+                    
+                ],
+                path: <span class="hljs-string">'scripts/'</span>
+            }
+        ]</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-19">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-19">&#182;</a>
+              </div>
+              <p>,slideShow: [{ type: ‘flex’,
+               id: ‘flex’,
+               slides: slides
+             }
+]</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        ,menu: [</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-20">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-20">&#182;</a>
+              </div>
+              <p>{ type: ‘superfish’,
+      tree: mainMenuTree,
+      id: ‘superfish’
+    },</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        ]
+        ,template: [</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-21">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-21">&#182;</a>
+              </div>
+              <p>{ src: ‘views/guide.html’ 
+  ,tagIdPostfix: ‘—‘ //can be overridden per template
+  ,out: ‘guideView.html’
+  ,mapping: {
+      menu: ‘html/docmenu’,
+      doc: ‘markdown/doc.md’
+  }
+}
+{ src: ‘views/template.html’ 
+  ,tagIdPostfix: ‘—‘ //can be overridden per template
+  ,out: ‘guideTemplate.html’
+  ,mapping: {
+      // menu: ‘html/docmenu’,
+      // doc: ‘markdown/doc.md’
+  }
+},
+Main layout</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            ,{ id: <span class="hljs-string">'body'</span>
+               ,src: <span class="hljs-string">'html/body.html'</span> 
+               ,tagIdPostfix: <span class="hljs-string">'--'</span> <span class="hljs-comment">//can be overridden per template</span>
+               ,mapping: {
+                   hello_world: <span class="hljs-string">"hello_world"</span>,
+                   chat: <span class="hljs-string">"html/chat.html"</span>
+               }
+             }
+            ,{  
+               src: <span class="hljs-string">'html/basicAngularPage.html'</span>
+               ,tagIdPostfix: <span class="hljs-string">''</span> <span class="hljs-comment">//can be overridden per template</span>
+               ,pathOut: <span class="hljs-string">''</span>
+               ,out: <span class="hljs-string">'www/index.html'</span> <span class="hljs-comment">//optional, relative to root</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-22">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-22">&#182;</a>
+              </div>
+              <p>Maps tag ids to partial ids. Tag ids have to be
+postfixed with two dashes in the template. Partials
+with an extension will be loaded from the partials
+folder for this template. Markdown files will be
+converted to html. Partials in an array will be
+concatenated before inserted at the tag id element</p>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-23">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-23">&#182;</a>
+              </div>
+              <p>Make sure to have the cachify partial included in the head if
+you want to dynamically load resources from javascript, but
+want to retrieve cachified versions. Include the resources
+under cachify.list</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>               ,mapping: {
+                   head: [<span class="hljs-string">'title'</span>, <span class="hljs-string">'meta'</span>,  <span class="hljs-string">'html/ieshim'</span>,<span class="hljs-string">'skewer'</span>,</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-24">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-24">&#182;</a>
+              </div>
+              <p>‘firebug’,</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                          <span class="hljs-string">'headJsBlock'</span>,
+                          <span class="hljs-string">'linkBlock'</span>
+                          ,<span class="hljs-string">'cachify'</span>
+                         ],
+                  
+                   <span class="hljs-string">"ng:app"</span>: [<span class="hljs-string">'body'</span>, <span class="hljs-string">'jsBlock'</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-25">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-25">&#182;</a>
+              </div>
+              <p>,’html/google_analytics.html’</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                             ]
+               }
+             }
+            
+        ] 
+    }
+};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-26">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-26">&#182;</a>
+              </div>
+              <p>TODO update bootstrap
+TODO use bower or something for vendor libs</p>
+
+            </div>
+            
+        </li>
+        
+    </ul>
+  </div>
+</body>
+</html>

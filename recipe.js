@@ -321,7 +321,7 @@ var exports = {
     ,prettyPrintHtml: false
     // ,tagIdPostfix: '__' //can be overridden per template
     ,paths: {
-        root: '/home/michieljoris/www/sites/firstdoor/'
+        root: process.cwd()//'/home/michieljoris/www/sites/firstdoor/'
         // root: process.cwd() 
         //relative to this root:
         ,partials: 'build/'  //can be overridden per template
@@ -477,13 +477,13 @@ var exports = {
         }
         ,linkBlock:  {
             id: 'myLinkBlock',
-            files: css,
+            files: [], //css,
             path: 'css/'
         }
         ,scriptBlock: [
             {
                 id: 'myJsBlock',
-                files: js,
+                files: [], //js,
                 path: 'js/'
                 
                 ,out: 'bla'
@@ -792,3 +792,5 @@ var exports = {
         
     }
 };
+
+// console.log(process.cwd());

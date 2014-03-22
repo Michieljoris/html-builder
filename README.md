@@ -93,7 +93,9 @@ but can be also overridden per template. A mapping from an id can
 refer to one partial or an array of partials. When an array they will
 be inserted one after the other.
 
-For an example of a complete recipe.js see my repo firstdoor.
+For an example of a complete recipe.js see my repo [js-project](http://github.com/Michieljoris/js-project)
+
+Or checkout the [documentation](http://rawgithub.com/Michieljoris/html-builder/master/docs/example-recipe.html)
 
 I wrote this thing because I don't want to write html if I can help
 it. Especially not repetitive html, such as listings of source or css
