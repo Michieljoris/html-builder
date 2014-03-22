@@ -30,6 +30,12 @@ var exports = {
         ,out:'built' 
         ,js: 'scripts'
     }
+    //send msg to url when finished rendering
+    ,refresh: {
+        enable: develop_mode,
+        url: "localhost:8080",
+        msg: "reload"
+    }
     /*
       If cachify if falsy resources will be requested as is, without a
       stamp. Which means bb-server will send them with max-age=0 and

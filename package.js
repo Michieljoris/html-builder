@@ -99,7 +99,8 @@ module.exports = {
 	"cheerio": "0.13.x",
         "extend": "*",
         "denodify": "0.1.*",
-        "dougs_vow": "*"
+        "dougs_vow": "*",
+        "ws": "0.4.*"
     },
     // What dependencies are useful only for developers?
     // Installed when we `npm install` in our working directory, but not 

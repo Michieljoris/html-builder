@@ -470,7 +470,6 @@ function render(args) {
         //TODO
         var cachified = cachifyTemplate(template, args.cachify);
         // if (args.out === 'view-courses.html') console.log(template);
-        console.log(args);
         saveFile(args.root + args.pathOut + args.out, cachifyTemplate(template, args.cachify));   
         str+= ' >> ' + args.out.blue;
         // log('>>' + args.out);
@@ -627,14 +626,14 @@ function processBlocks(partials, extras) {
     if (!extraLinkBlock) extraLinkBlock = partials.linkBlock[partials.linkBlock.length-1];
     
     var extraScriptBlock;
-    partials.linkBlock.some(function(lb) {
-        if (lb.extra) {
-            extraScriptBlock = lb;
+    partials.scriptBlock.some(function(sb) {
+        if (sb.extra) {
+            extraScriptBlock = sb;
             return true;
         }
         return false;
     }); 
-    if (!extraScriptBlock) extraScriptBlock = partials.linkBlock[partials.linkBlock.length-1];
+    if (!extraScriptBlock) extraScriptBlock = partials.scriptBlock[partials.scriptBlock.length-1];
     
     Object.keys(extraCss).forEach(function(key) {
         if (extras && ~extras.indexOf(key)) {
@@ -646,7 +645,7 @@ function processBlocks(partials, extras) {
     Object.keys(extraJs).forEach(function(key) {
         if (extras && ~extras.indexOf(key)) {
             if (extraJs[key])
-                extraScriptBlock.files = extraScriptBlock.files.concat(extraCss[key]); 
+                extraScriptBlock.files = extraScriptBlock.files.concat(extraJs[key]); 
         }
     });
     
@@ -760,15 +759,28 @@ function build(dataFileName) {
             cachifyTemplate = function(html) { return html; };
             cachify = function(pathName) { return pathName; };   
         }
-    console.log('in callback1')    ;
     
         // log(util.inspect(buildData, { colors: true }));
         processPartials(buildData.partials || {});
-    console.log('in callback2')    ;
     
         var map = buildMap(buildData.partials.template);
     
         if (buildData.verbose && buildData.printMap) log(util.inspect(map, { depth:10 }));
+        try { 
+        if (buildData.refresh && buildData.refresh.enable) {
+            console.log('Sending msg to ' + buildData.refresh.url);
+            
+            var WebSocket = require('ws');
+            var ws = new WebSocket(buildData.refresh.url);
+            ws.on('open', function() {
+                ws.send(buildData.refresh.msg);
+            });
+            ws.on('message', function(data, flags) {
+                // flags.binary will be set if a binary data is received
+                // flags.masked will be set if the data was masked
+            });  
+        }
+            } catch(e) { console.log('error', e); };
         log('Finished rendering');
     }
 }

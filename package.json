@@ -36,7 +36,8 @@
     "cheerio": "0.13.x",
     "extend": "*",
     "denodify": "0.1.*",
-    "dougs_vow": "*"
+    "dougs_vow": "*",
+    "ws": "0.4.*"
   },
   "devDependencies": {
     "fs-extra": "0.8.x",
@@ -52,5 +53,5 @@
     "www.firstdoor.com.au",
     "firstdoor.com.au"
   ],
-  "version": "0.2.5"
+  "version": "0.2.6"
 }
