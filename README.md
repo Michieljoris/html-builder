@@ -3,6 +3,9 @@ html-builder
 
 Completeyly hacked together as requirements came up, but it works!
 
+Added websocket client. When finished building it will send a reload msg to the
+server to instruct the server to send a reload msg to the browser.
+
 Use nodejs modules in the browser! No browserify!
 
 It now concatenates your css and js files in production mode and adds a cache

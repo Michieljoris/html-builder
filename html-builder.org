@@ -1,3 +1,5 @@
+* TODO
+** change it into a server that you can give commands and uses websockets to communicate
 * html-builder
 ** substitue module objects in script block file list with more file entries
 add module before the file extension so that bb-server knows to strip it before

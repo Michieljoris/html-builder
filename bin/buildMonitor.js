@@ -11,13 +11,13 @@ require('colors');
 var argv = require('optimist').argv;
 
 var build = require('../src/html-builder.js').build;
+var WebSocket = require('ws');
 
 
 // function addDirToMonitor(partial) {
 //    if (partial.partialsDir && monitoredDirs.indexOf(partial.partialsDir) === -1)
 //        monitoredDirs.push(partial.partialsDir);
 // }
-
 
 function monitor(dataFileName) {
     var isHtml = /.*\.html?$/;
@@ -61,7 +61,7 @@ function monitor(dataFileName) {
                 
             // });
             
-            build();
+            build(websocket);
             // log('Building ' + buildData.out);
             // exec("lispy -r " + ev.filename, puts);
             // var buildData = evalFile(dataFileName);
@@ -91,7 +91,42 @@ function monitor(dataFileName) {
     filemon.watch(options); 
 } 
 
+console.log('Arguments', argv);
+function reload(buildData) {
+    
+    // try { 
+    //     if (buildData.reload && buildData.reload.enable) {
+    //         console.log('Sending reload msg to ' + buildData.reload.url);
+            
+    //         ws.on('open', function() {
+    //             ws.send('reload');
+    //         });
+    //         ws.on('message', function(data, flags) {
+    //             console.log('Incoming msg!!', data, flags);
+    //             // flags.binary will be set if a binary data is received
+    //             // flags.masked will be set if the data was masked
+    //         });  
+    //         ws.on('error', function() {
+    //             console.log('ERROR!!!', );
+    //             // flags.binary will be set if a binary data is received
+    //             // flags.masked will be set if the data was masked
+    //         });  
+    //     }
+    // } catch(e) { console.log('error', e); };
+    
+    // if (!url) return;
+    // var WebSocket = require('ws');
+    // var ws = new WebSocket('ws://' + url);
+    // ws.on('open', function() {
+    //     ws.send('reload');
+    // });
+    // ws.on('message', function(data, flags) {
+    //     console.log(data, flags);
+    //     // flags.binary will be set if a binary data is received
+    //     // flags.masked will be set if the data was masked
+    // });
 
+}
 
 if (argv.h || argv.help) {
     console.log([
@@ -101,10 +136,18 @@ if (argv.h || argv.help) {
 }
 
 
+
 var monitoredDirs = [];
-var dir = (argv._ && argv._[0]) || process.cwd() + '/build/';
-monitoredDirs.push(dir);
+var dir = argv.c || process.cwd() + '/build/';
+var url = argv.s || 'ws://localhost:8080';
+console.log('Connecting to ', url);
+
+var websocket = new WebSocket(url);
+websocket.on('open', function() {
+    websocket.send('buildMonitor connected');
+});
 build();
-// console.log(dir);
+
+monitoredDirs.push(dir);
 monitor(dir + 'recipe.js');
 

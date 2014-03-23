@@ -652,9 +652,14 @@ function processBlocks(partials, extras) {
 }
 
 var testing = true;
-function build(dataFileName) {
+function build(dataFileName, websocket) {
+    if (!websocket) {
+        websocket = dataFileName;
+        dataFileName = null;
+    }
     if (!dataFileName)
-        dataFileName = process.cwd() + '/build/recipe.js';
+    {  dataFileName = process.cwd() + '/build/recipe.js';
+    }
     var buildData = evalFile(dataFileName);
     if (!buildData.partials) {
         log('Error..');
@@ -671,7 +676,6 @@ function build(dataFileName) {
     paths.root = trailWith(paths.root || process.cwd(), '/');
     paths.partials = trailWith( paths.partials || 'build', '/');
     // paths.monitor = trailWith( paths.monitor || 'build', '/');
-    console.log(paths.out);
     paths.out = Path.join(paths.www , trailWith( paths.out || 'built', '/'));
     
     paths.js = Path.join(paths.www , trailWith( paths.js || 'js', '/'));
@@ -766,22 +770,11 @@ function build(dataFileName) {
         var map = buildMap(buildData.partials.template);
     
         if (buildData.verbose && buildData.printMap) log(util.inspect(map, { depth:10 }));
-        try { 
-        if (buildData.refresh && buildData.refresh.enable) {
-            console.log('Sending msg to ' + buildData.refresh.url);
-            
-            var WebSocket = require('ws');
-            var ws = new WebSocket(buildData.refresh.url);
-            ws.on('open', function() {
-                ws.send(buildData.refresh.msg);
-            });
-            ws.on('message', function(data, flags) {
-                // flags.binary will be set if a binary data is received
-                // flags.masked will be set if the data was masked
-            });  
-        }
-            } catch(e) { console.log('error', e); };
         log('Finished rendering');
+        if (buildData.reload.enable) {
+            console.log('Sending message to server to reload page');
+            websocket.send(buildData.reload.msg); }
+        // reload(buildData);
     }
 }
 

@@ -31,7 +31,7 @@ var exports = {
         ,js: 'scripts'
     }
     //send msg to url when finished rendering
-    ,refresh: {
+    ,reload: {
         enable: develop_mode,
         url: "localhost:8080",
         msg: "reload"
