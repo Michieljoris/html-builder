@@ -12,6 +12,7 @@ var argv = require('optimist').argv;
 
 var build = require('../src/html-builder.js').build;
 var WebSocket = require('ws');
+var websocket;
 
 
 // function addDirToMonitor(partial) {
@@ -61,7 +62,7 @@ function monitor(dataFileName) {
                 
             // });
             
-            build(websocket);
+            build(function() { return websocket; });
             // log('Building ' + buildData.out);
             // exec("lispy -r " + ev.filename, puts);
             // var buildData = evalFile(dataFileName);
@@ -91,7 +92,6 @@ function monitor(dataFileName) {
     filemon.watch(options); 
 } 
 
-console.log('Arguments', argv);
 function reload(buildData) {
     
     // try { 
@@ -137,15 +137,71 @@ if (argv.h || argv.help) {
 
 
 
+// console.log('Arguments', argv);
 var monitoredDirs = [];
 var dir = argv.c || process.cwd() + '/build/';
-var url = argv.s || 'ws://localhost:8080';
-console.log('Connecting to ', url);
 
-var websocket = new WebSocket(url);
-websocket.on('open', function() {
-    websocket.send('buildMonitor connected');
-});
+function enableWebsocket() {
+    console.log('Html-builder: Connecting to ', url);
+        var probe;
+        var tried = 0;
+    function connect() {
+        if (tried === 0) {
+            console.log('Trying to connect to ' + url);
+        }
+        else process.stdout.write('.');
+            websocket = new WebSocket(url);
+    
+        // When the connection is open, send some data to the server
+        websocket.onopen = function () {
+                
+            websocket.send('buildMonitor connected');
+            console.log('\nbuildMonitor connected to ' + url);
+            clearTimeout(probe);
+            tried = 0;
+        };
+
+        // Log errors
+        websocket.onerror = function (error) {
+            // console.log("ERROR", err);
+        };
+
+        // Log messages from the server
+        websocket.onmessage = function (e) {
+            clearTimeout(probe);
+            console.log('Server: ' , e.data);
+            // if (e.data === "reload") {
+            //     location.reload();
+            // }
+        };
+        
+        websocket.onclose = function (e) {
+            console.log("Connection closed..");
+            probe = setInterval(function() {
+                connect();
+            },1000);
+        };
+        tried++;
+    }
+    
+    probe = setInterval(function() {
+        connect();
+    },1000);
+};
+var url = argv.s; //|| 'ws://localhost:8080';
+if (url) enableWebsocket();
+
+
+// var websocket = new WebSocket(url);
+
+// websocket.on('open', function() {
+//     websocket.send('buildMonitor connected');
+// });
+
+// websocket.on('error', function(err) {
+//     console.log('Not able to connect to ' + url);
+//     console.log("ERROR", err);
+// });
 build();
 
 monitoredDirs.push(dir);

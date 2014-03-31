@@ -652,9 +652,9 @@ function processBlocks(partials, extras) {
 }
 
 var testing = true;
-function build(dataFileName, websocket) {
-    if (!websocket) {
-        websocket = dataFileName;
+function build(dataFileName, getWebsocket) {
+    if (typeof dataFileName === 'function') {
+        getWebsocket = dataFileName;
         dataFileName = null;
     }
     if (!dataFileName)
@@ -771,9 +771,9 @@ function build(dataFileName, websocket) {
     
         if (buildData.verbose && buildData.printMap) log(util.inspect(map, { depth:10 }));
         log('Finished rendering');
-        if (buildData.reload.enable) {
+        if (buildData.reload.enable && getWebsocket) {
             console.log('Sending message to server to reload page');
-            websocket.send(buildData.reload.msg); }
+            getWebsocket().send(buildData.reload.msg); }
         // reload(buildData);
     }
 }
