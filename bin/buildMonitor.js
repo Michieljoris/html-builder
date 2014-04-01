@@ -189,6 +189,7 @@ function enableWebsocket() {
     },1000);
 };
 var url = argv.s; //|| 'ws://localhost:8080';
+console.log('url =', url);
 if (url) enableWebsocket();
 
 

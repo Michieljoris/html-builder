@@ -16,7 +16,7 @@ var Path = require('path');
 var cheerio = require('cheerio');
 var extend = require('extend');
 var demodularify = require('./demodularify');
-var concat = require('./concat');
+var concat = require('./concat').concat;
 
 var utils = require('./utils');
 
@@ -722,7 +722,6 @@ function build(dataFileName, getWebsocket) {
     }
     
     processBlocks(buildData.partials, buildData.extras);
-    
     demodularify(buildData.partials.scriptBlock, paths.www, callback);
     
     function callback(err, scriptBlock) {

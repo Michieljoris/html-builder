@@ -20,7 +20,7 @@ var isModule = require('./utils').isModule;
 //scripts, bundle it up again, cache and send it (as a
 //proper js file).
 
-function concat(block, bundle) {
+function concat(paths, block, bundle) {
     var indices = [];
     var index = 0;
     var result =  block.files
@@ -57,8 +57,8 @@ module.exports.concat = function (paths, blocks, ext) {
             });
 	    var fileName = trailWith(block.id, mixed ? '.bundle' : ext);
             console.log(fileName, '-------------------------------------');
-            var data = concat(block, mixed);
-            console.log(data, '\n');
+            var data = concat(paths, block, mixed);
+            // console.log(data, '\n');
 	    saveFile(Path.join(paths.root, paths.www, block.path, fileName), data);
 	    return { id: block.id, files: [fileName], path: block.path };
         });
