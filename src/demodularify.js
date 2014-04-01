@@ -11,7 +11,9 @@ function insertScriptList(files, index, wwwPath, scriptPath, moduleId) {
     denodify.list(wwwPath,Path.join(scriptPath, Path.dirname(moduleId)), Path.basename(moduleId), function(err, list) {
         if (err) vow.breek(err);
         else {
+            
             files[index] = list.map(function(m) { return m.route; });
+            console.log(files);
             vow.keep(); }
     });
     return vow.promise;
@@ -53,6 +55,7 @@ function processOneScriptBlock(wwwPath, sb, denodifyPath) {
                 }
             }); 
             sb.files = newList;
+            sb.path = '';
             vow.keep(sb);
         },
         function(err) {
@@ -75,6 +78,7 @@ function deduplicate(blocks) {
 }
 
 function demodularify(scriptBlock, wwwPath, cb) {
+    //make sure there is a denodify script in the scripts directory to load
     var denodifyPath = Path.join(wwwPath, 'scripts', 'denodify.js');
     try {
         fs.statSync(Path.resolve(denodifyPath));
@@ -83,7 +87,6 @@ function demodularify(scriptBlock, wwwPath, cb) {
         fs.outputFileSync(Path.resolve(denodifyPath), denodify.script);
     } 
     var vows = [];
-    
     scriptBlock.forEach(function(sb) {
         vows.push(processOneScriptBlock(wwwPath, sb, Path.join(sb.path || '', 'denodify.js')));
     });

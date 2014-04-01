@@ -725,6 +725,7 @@ function build(dataFileName, getWebsocket) {
     demodularify(buildData.partials.scriptBlock, paths.www, callback);
     
     function callback(err, scriptBlock) {
+        
         if (err) {
             console.log("Error denodifying script list".red, err);;
             // return;
