@@ -136,13 +136,13 @@ module.exports = {
     "scripts": {
         "start": "node ./server/server.js",
         "docs": "node node_modules/.bin/docco example-recipe.js"
-    },
+    }
     
-    "subdomain": "firstdoor",
-    "domains": [
-        "www.firstdoor.com.au",
-        "firstdoor.com.au"
-    ]
+    // "subdomain": "firstdoor",
+    // "domains": [
+    //     "www.firstdoor.com.au",
+    //     "firstdoor.com.au"
+    // ]
 };
 
 var pjs = require('./package.json');

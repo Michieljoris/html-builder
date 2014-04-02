@@ -48,10 +48,5 @@
     "start": "node ./server/server.js",
     "docs": "node node_modules/.bin/docco example-recipe.js"
   },
-  "subdomain": "firstdoor",
-  "domains": [
-    "www.firstdoor.com.au",
-    "firstdoor.com.au"
-  ],
-  "version": "0.2.8"
+  "version": "0.2.11"
 }
