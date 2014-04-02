@@ -121,7 +121,7 @@ function getPartial(partialsPath, name) {
         // console.log(partial);
         //bloody IE panics and goes into quirk mode if there's anything before the doctype html tag!!!
         //so make sure for IE compatibility to have as the basic page's first 15 characters:<doctype html> 
-        if (partial.slice(0,15).toLowerCase() !== '<!doctype html>')
+        if (partial.slice(0,15).toLowerCase() !== '<!doctype html>' && !name.endsWith('.js'))
             partial =  "\n<!--partial:" +  name +  "-->\n" + partial;
         // console.log('got partial ' + name + ' from disk');
     } catch(e) {
