@@ -33,8 +33,8 @@ var exports = {
     //send msg to url when finished rendering
     ,reload: {
         enable: develop_mode,
-        url: "localhost:8080",
         msg: "reload"
+        //url gets loaded from the the file in bin/URL
     }
     /*
       If cachify if falsy resources will be requested as is, without a

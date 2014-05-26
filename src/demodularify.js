@@ -8,14 +8,15 @@ var trailWith = require('./utils').trailWith;
 function insertScriptList(files, index, wwwPath, scriptPath, moduleId) {
     var vow = VOW.make();
     // console.log(moduleId);
-    denodify.list(wwwPath,Path.join(scriptPath, Path.dirname(moduleId)), Path.basename(moduleId), function(err, list) {
-        if (err) vow.breek(err);
-        else {
-            
-            files[index] = list.map(function(m) { return m.route; });
-            console.log(files);
-            vow.keep(); }
-    });
+    denodify.list(wwwPath,Path.join(scriptPath, Path.dirname(moduleId)), Path.basename(moduleId),
+                  function(err, list) {
+                      if (err) vow.breek(err);
+                      else {
+                          // files[index] = list.map(function(m) { return m.route; });
+                          files[index] = list;
+                          console.log('found files:\n', files[index]);
+                          vow.keep(); }
+                  });
     return vow.promise;
 }
 
@@ -47,9 +48,12 @@ function processOneScriptBlock(wwwPath, sb, denodifyPath) {
                 if (typeof f === 'string') newList.push(Path.join(sb.path || '', f));
                 else {
                     f.forEach(function(f) {
-                        var ext = Path.extname(f);
-                        f = Path.dirname(f) + '/' + Path.basename(f, ext) + '.nm' + ext;
-                        newList.push(f);
+                        var route = f.route;
+                        var ext = Path.extname(route);
+                        //mark modules by adding .nm to the filename
+                        //TODO also add preresolved name and path of file that requires it1!!
+                        route = Path.dirname(route) + '/' + Path.basename(route, ext) + '.nm' + ext;
+                        newList.push(route + "?module=true&id=" + f.id);
                         // console.log(f);
                     });
                 }
@@ -83,7 +87,7 @@ function demodularify(scriptBlock, wwwPath, cb) {
     try {
         fs.statSync(Path.resolve(denodifyPath));
     } catch (e) {
-        console.log('demodularify: scripts/denodify not found!!!'.red);
+        console.log('demodularify: scripts/denodify not found, adding one.'.red);
         fs.outputFileSync(Path.resolve(denodifyPath), denodify.script);
     } 
     var vows = [];

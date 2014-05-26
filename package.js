@@ -90,7 +90,7 @@ module.exports = {
     // **NOTE:** We don't have any dependencies for this module. See the
     // `devDependencies` block for the way to include dependencies.
     "dependencies": {
-	"plates": "~0.4.8",
+	"plates": "0.4.8",
 	"htmlparser2": "~2.5.2",
 	"node-markdown": "0.1.x",
 	"filemonitor": "0.1.x",

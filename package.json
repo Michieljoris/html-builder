@@ -27,7 +27,7 @@
     "node": ">= 0.8.x"
   },
   "dependencies": {
-    "plates": "~0.4.8",
+    "plates": "0.4.8",
     "htmlparser2": "~2.5.2",
     "node-markdown": "0.1.x",
     "filemonitor": "0.1.x",
@@ -48,5 +48,5 @@
     "start": "node ./server/server.js",
     "docs": "node node_modules/.bin/docco example-recipe.js"
   },
-  "version": "0.2.11"
+  "version": "0.2.12"
 }
