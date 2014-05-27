@@ -35,7 +35,7 @@
     "colors": "*",
     "cheerio": "0.13.x",
     "extend": "*",
-    "denodify": "0.1.*",
+    "denodify": "*",
     "dougs_vow": "*",
     "ws": "0.4.*"
   },
@@ -48,5 +48,5 @@
     "start": "node ./server/server.js",
     "docs": "node node_modules/.bin/docco example-recipe.js"
   },
-  "version": "0.2.12"
+  "version": "0.2.14"
 }

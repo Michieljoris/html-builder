@@ -100,7 +100,8 @@ module.exports = {
         "extend": "*",
         "denodify": "0.1.*",
         "dougs_vow": "*",
-        "ws": "0.4.*"
+        "ws": "0.4.*",
+        "denodify": "*"
     },
     // What dependencies are useful only for developers?
     // Installed when we `npm install` in our working directory, but not 

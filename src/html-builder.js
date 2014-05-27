@@ -15,7 +15,7 @@ var colors = require('colors');
 var Path = require('path');
 var cheerio = require('cheerio');
 var extend = require('extend');
-var demodularify = require('./demodularify');
+var demodularify = require('denodify').expand;
 var concat = require('./concat').concat;
 
 var utils = require('./utils');
