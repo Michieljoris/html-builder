@@ -238,7 +238,7 @@ function buildMenuTree(tree, hashBang) {
     //     '<ul id="nav" class="menu sf-menu">';
     var str = '';
     function removeSlashes(str) {
-        if (str[0] === '/') str = str.slice(1);
+        // if (str[0] === '/') str = str.slice(1); not good for routing!!
         if (str[str.length-1] === '/') str = str.slice(0, str.length-1);
         return str;
     }
