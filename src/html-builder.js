@@ -92,7 +92,7 @@ function stamp(prefix, pathName, exclude) {
 		 return pathName;
 	       }
     
-    return stamps[pathName] = Path.join(prefix + stamp, pathName);
+    return stamps[pathName] = Path.normalize(Path.join('/' + prefix + stamp, pathName));
 }
 
 
@@ -410,7 +410,7 @@ function makeCachifyPartial(list, length) {
     list = list || [];
     var start = "<script type='text/javascript'>\n  function cachify(path) {\n" +
         "    var map = {\n";
-    var end = "\n    };/*console.log(path,map[path]);*/\n   return map[path] ? map[path] + '/' + path : path; }\n</script>";
+    var end = "\n    };/*console.log(path,map[path]);*/\n   return map[path] ? map[path] + path : path; }\n</script>";
     list = list.map(function(p) {
         return '      "' + p.toString() + '": "' + (cachify(p) === p ? '' : cachify(p).slice(0,length)) + '"';
     });
@@ -755,6 +755,7 @@ function build(dataFileName, getWebsocket) {
             });
             buildData.cachify.list = buildData.cachify.list.concat(buildData.routes.map(function(r) { return r[1]; }));
             defaultPartials.cachify = function() { return makeCachifyPartial(buildData.cachify.list,
+                                                                             '/'.length + 
                                                                              buildData.cachify.prefix.length +
                                                                              buildData.cachify.length); };
             builders.template.defArgs.cachify = buildData.cachify;
