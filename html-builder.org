@@ -9,8 +9,12 @@ finding the file on disk.
 Four scripts, with line numbers. Every bundle could be requested as
 name.bundle so bb-server knows what it is, then split it up, recast the parts,
 concat the result and cache it. 
+On second thought, bb-server can/should concatenate all the files. Why not. When
+concatenate===true in recipe, just insert script tag for a file that's marked as bundle
+(?bundle) but that only lists a bunch of files. Bb-server can recast them,
+concat them, minify and gzip them before sending to the browser.
    
-** cachifying resources
+** DONE cachifying resources
 put timestamped files in the source code at every build(as set in the
 recipe per extension), timestamp gets stripped off by bb-server anyway
 when the file is requested. Files that are the same will have same
