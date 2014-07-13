@@ -27,9 +27,9 @@ var endsWith = utils.endsWith;
 var log;
 
 var defaultPartials = {
-    script: '<script type="text/javascript" src="bla"></script>'
-    ,link:'<link rel="stylesheet" type="text/css" href="">'
-    ,'cachify': "<script type='text/javascript'>function cachify(path) { return path; }</script>"
+    script: '\n<script type="text/javascript" src="bla"></script>'
+    ,link:'\n<link rel="stylesheet" type="text/css" href="">'
+    ,'cachify': "\n<script type='text/javascript'>function cachify(path) { return path; }</script>"
 };
 var partialsCollection = {};
 var uid;
