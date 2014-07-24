@@ -205,6 +205,9 @@ if (url) enableWebsocket();
 // });
 build();
 
+var scripts = argv.c || process.cwd() + '/www/scripts/';
+monitoredDirs.push(scripts);
+
 monitoredDirs.push(dir);
 monitor(dir + 'recipe.js');
 
