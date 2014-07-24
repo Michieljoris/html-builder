@@ -772,7 +772,7 @@ function build(dataFileName, getWebsocket) {
     
         if (buildData.verbose && buildData.printMap) log(util.inspect(map, { depth:10 }));
         log('Finished rendering');
-        if (buildData.reload.enable && getWebsocket) {
+        if (buildData.reload && buildData.reload.enable && getWebsocket) {
             console.log('Sending message to server to reload page');
             getWebsocket().send(buildData.reload.msg); }
         // reload(buildData);
