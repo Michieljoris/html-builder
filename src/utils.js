@@ -2,14 +2,15 @@ var fs = require('fs-extra');
 var crypto = require('crypto');
 var Path = require('path');
   
-module.exports.saveFile = function saveFile(pathName, str){
+module.exports.saveFile = function saveFile(pathName, str, vow){
     var oldHash, newHash;
     try {
         var sum = crypto.createHash('sha1');
-        var orig = fs.readFileSync(pathName);
+        // var orig = fs.readFileSync(pathName);
         sum.update(fs.readFileSync(pathName));
         oldHash = sum.digest('hex');
     } catch(e) {} 
+    
     if (oldHash) {
         sum = crypto.createHash('sha1');
         sum.update(str);
@@ -23,11 +24,13 @@ module.exports.saveFile = function saveFile(pathName, str){
     // console.log('Saving ' + pathName);
     try {
         fs.outputFileSync(pathName, str, 'utf8');
+        vow.keep();
     } catch(e) {
         console.log(e);
+        if (vow) vow.breek('Error writing file '+ pathName + e.toString());
     }
     return true;
-};
+}
   
 function endsWith(str, trail) {
     return (str.substr(str.length-trail.length, str.length-1) === trail);

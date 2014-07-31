@@ -3,6 +3,7 @@
 /*jshint maxparams:6 maxcomplexity:10 maxlen:190 devel:true*/
 // var sys = require('sys');
 
+var VOW = require('dougs_vow');
 var Plates = require('plates');
 var util = require('util');
 var fs = require('fs');
@@ -105,7 +106,7 @@ function addResources(id, js, css) {
 function getPartial(partialsPath, name) {
     var partial, path, partialName; 
     // log('getting partial', name);
-    if (name.indexOf('.') === -1) {
+    if (name && name.indexOf('.') === -1) {
         partial = partialsCollection[name];   
         if (partial) return typeof partial === 'function' ? partial() : partial;
     }
@@ -143,6 +144,7 @@ function makeStyleBlock(args) {
     // console.log('Making style block\n', args);
     
     var path = (typeof args.path === 'undefined') ? 'css' : args.path;
+    if (path.indexOf('/') !== 0) path = '/' + path;
     var array = args.files;
     
     var map = Plates.Map();
@@ -537,15 +539,20 @@ function processPartials(partials) {
     // log(util.inspect(partialsCollection, { colors: true }));
 }
 
-function evalFile(fileName) {
+function evalFile(fileName, vow) {
     var file;
+    // console.log(fileName);
+    // // var exports = require(fileName);
+    // // return exports;
+    // return require(fileName);
+    
     try { file = fs.readFileSync(fileName, 'utf8');
           // console.log(file);
           eval(file);
-          return exports;
+          vow.keep(exports);
         } catch (e) {
             console.log('Error reading data file: '.red, e);
-            return undefined;
+            vow.breek('Error reading data file: ' + e.toString());
         }
 } 
 
@@ -651,26 +658,15 @@ function processBlocks(partials, extras) {
     
 }
 
-var testing = true;
-function build(dataFileName, getWebsocket) {
-    if (typeof dataFileName === 'function') {
-        getWebsocket = dataFileName;
-        dataFileName = null;
-    }
-    if (!dataFileName)
-    {  dataFileName = process.cwd() + '/build/recipe.js';
-    }
-    var buildData = evalFile(dataFileName);
-    if (!buildData.partials) {
-        log('Error..');
-        return;
-    }
-    var partialsDir;
-    if (!buildData) {
-        buildData = {
-            verbose: true
-        };
-    }
+function retrieveRecipe(data) {
+    var vow = VOW.make();
+    if (typeof data === 'function') vow.keep(data());
+    else if (typeof data === 'object') vow.keep(data);
+    else evalFile(data || process.cwd() + '/build/recipe.js', vow);
+    return vow.promise;
+}
+
+function initPaths(buildData) {
     var paths = buildData.paths = buildData.paths || {};
     paths.www = paths.www || 'www';
     paths.root = trailWith(paths.root || process.cwd(), '/');
@@ -679,18 +675,11 @@ function build(dataFileName, getWebsocket) {
     paths.out = Path.join(paths.www , trailWith( paths.out || 'built', '/'));
     
     paths.js = Path.join(paths.www , trailWith( paths.js || 'js', '/'));
-    
-    log = !buildData.verbose || !testing ?  function () {}: function() {
-        console.log.apply(console, arguments); };
-    
-    
-    buildData.tagIdPostfix = buildData.tagIdPostfix || '--';
-        
-    log('Cwd: ' + process.cwd());
-    log('Root dir: ' + buildData.paths.root);
-    
-    partialsDir = buildData.paths.root + buildData.paths.partials;
-    
+}
+
+function initBuilders(buildData) {
+    var paths = buildData.paths;
+    var partialsDir = buildData.partialsDir;
     builders.template.defArgs = {
         root: paths.root,
         partialsDir: partialsDir,
@@ -698,86 +687,165 @@ function build(dataFileName, getWebsocket) {
         prettyPrintHtml: buildData.prettyPrintHtml,
         pathOut: paths.out
     };
-    
     builders.linkBlock.defArgs = {
         partialsDir: partialsDir,
         css: 'css/'
     };
-    
     builders.scriptBlock.defArgs = {
         partialsDir: partialsDir,
         js: 'js',
         wwwPath: Path.resolve(paths.root, paths.www)
-        
     };
-    
+}
+
+function processRoutes(buildData) {
+    var vow = VOW.make();
+    var paths = buildData.paths;
     if (buildData.routes) {
-        var routerJsString = getPartial(partialsDir, 'js/router.js');
+        var routerJsString = getPartial(buildData.partialsDir, 'js/router.js');
         var routes  = makeRouterBlock(buildData.routes);
         // routes = '/*' + routes + '*/';
         routerJsString = routerJsString.replace(/inserthere/, routes);
         log(' >> ' + 'router.js'.blue);
         // console.log(Path.join(paths.root, paths.www, 'router.js'));
-        saveFile(Path.join(paths.root, paths.www,  'router.js'), routerJsString);
+        saveFile(Path.join(paths.root, paths.www,  'router.js'), routerJsString, vow);
     }
-    
-    processBlocks(buildData.partials, buildData.extras);
-    demodularify(buildData.partials.scriptBlock, paths.www, callback);
-    
-    function callback(err, scriptBlock) {
-        
-        if (err) {
-            console.log("Error denodifying script list".red, err);;
-            // return;
-        }
-        buildData.partials.scriptBlock = scriptBlock;
-        if (buildData.concatenate) {
+    else vow.keep();
+    return vow.promise;
+}
+
+function concatenate(recipe) {
+        //concatenate
+        if (recipe.concatenate) {
             log('Concatenating all js and css');
-            buildData.partials.scriptBlock =
-                concat(paths, buildData.partials.scriptBlock, '.js');
-            buildData.partials.linkBlock =
-                concat(paths, buildData.partials.linkBlock, '.css');
+            recipe.partials.scriptBlock =
+                concat(recipe.paths, recipe.partials.scriptBlock, '.js');
+            recipe.partials.linkBlock =
+                concat(recipe.paths, recipe.partials.linkBlock, '.css');
         }
-    
-        stamps = {};
-        if (buildData.cachify) {
-            buildData.cachify = typeof buildData.cachify === 'boolean' ? {} : buildData.cachify;
-            buildData.cachify = extend({   exclude: [],
-                                           method: 'sha1',
-                                           length: 10,
-                                           prefix: '_'
-                                       } , buildData.cachify);
+    //TODO: catch errors in concat and breek the vow.
+    return VOW.kept();
+}
+
+function processCachify(recipe) {
+    stamps = {};
+    if (recipe.cachify) {
+        recipe.cachify = typeof recipe.cachify === 'boolean' ? {} : recipe.cachify;
+        recipe.cachify = extend({   exclude: [],
+                                    method: 'sha1',
+                                    length: 10,
+                                    prefix: '_'
+                                } , recipe.cachify);
         
-            calcStamp = getCalcStamp(Path.join(buildData.paths.root, buildData.paths.www) , buildData.cachify); 
-        
-            cachify = (function(pathName) {
-                return stamp(buildData.cachify.prefix, pathName, buildData.cachify.exclude);
-            });
-            buildData.cachify.list = buildData.cachify.list.concat(buildData.routes.map(function(r) { return r[1]; }));
-            defaultPartials.cachify = function() { return makeCachifyPartial(buildData.cachify.list,
-                                                                             '/'.length + 
-                                                                             buildData.cachify.prefix.length +
-                                                                             buildData.cachify.length); };
-            builders.template.defArgs.cachify = buildData.cachify;
-        }
-        else {
-            cachifyTemplate = function(html) { return html; };
-            cachify = function(pathName) { return pathName; };   
-        }
-    
-        // log(util.inspect(buildData, { colors: true }));
-        processPartials(buildData.partials || {});
-    
-        var map = buildMap(buildData.partials.template);
-    
-        if (buildData.verbose && buildData.printMap) log(util.inspect(map, { depth:10 }));
-        log('Finished rendering');
-        if (buildData.reload && buildData.reload.enable && getWebsocket) {
-            console.log('Sending message to server to reload page');
-            getWebsocket().send(buildData.reload.msg); }
-        // reload(buildData);
+        calcStamp = getCalcStamp(Path.join(recipe.paths.root, recipe.paths.www) ,
+                                 recipe.cachify); 
+        cachify = (function(pathName) {
+            return stamp(recipe.cachify.prefix, pathName, recipe.cachify.exclude);
+        });
+        recipe.cachify.list =
+            recipe.cachify.list.concat(recipe.routes.map(function(r) { return r[1]; }));
+        defaultPartials.cachify =
+            function() { return makeCachifyPartial(recipe.cachify.list,
+                                                   '/'.length + 
+                                                   recipe.cachify.prefix.length +
+                                                   recipe.cachify.length); };
+        builders.template.defArgs.cachify = recipe.cachify;
+    }
+    else {
+        cachifyTemplate = function(html) { return html; };
+        cachify = function(pathName) { return pathName; };   
     }
 }
+
+var testing = true;
+function build(arg) {
+    var recipe;
+    return retrieveRecipe(arg)
+        .when(function(someRecipe) {
+            recipe = someRecipe;
+            log = !recipe.verbose || !testing ?  function () {}: function() {
+                console.log.apply(console, arguments); };
+            recipe.partialsDir = Path.join(recipe.paths.root, recipe.paths.partials);
+            recipe.tagIdPostfix = recipe.tagIdPostfix || '--';
+            initPaths(recipe);
+            initBuilders(recipe);
+            log('Cwd: '.blue + process.cwd());
+            log('Root dir: '.blue + recipe.paths.root);
+            return processRoutes(recipe);
+        }).when(function() {
+            try {
+                //TODO make sure next fn throws errors on errors, not just print
+                //out to console, too much refactoring to pass in a vow, or return one.
+                processBlocks(recipe.partials, recipe.extras);
+            } catch(e) {
+                return VOW.broken(e);
+            }
+            return VOW.kept();
+        })
+        .when(function() {
+            return demodularify(recipe.partials.scriptBlock,
+                                recipe.paths.www);
+        })
+        .when(function(scriptBlock) {
+            recipe.partials.scriptBlock = scriptBlock;
+            return concatenate(recipe);
+        })
+        .when(function() {
+            try {
+                //TODO make sure next fn throws errors on errors, not just print
+                //out to console, too much refactoring to pass in a vow, or return one.
+                processCachify(recipe);
+                processPartials(recipe.partials || {});
+            } catch(e) {
+                return VOW.broken(e);
+            }
+            return VOW.kept();
+        })
+        .when(function() {
+            if (recipe.verbose && recipe.printMap) {
+                log(util.inspect(
+                    buildMap(recipe.partials.template),
+                                 { depth:10 }));
+            }
+            log('Finished rendering');
+            return VOW.kept();;
+        });
+}
+
+// function processBuildData(scriptBlock) {
+//     var vow = VOW.make();
+    
+//             // if (recipe.reload && recipe.reload.enable && getWebsocket) {
+//             //     console.log('Sending message to server to reload page');
+//             //     getWebsocket().send(recipe.reload.msg); }
+//             // reload(recipe);
+//             // }
+    
+    
+//     // function callback(err, scriptBlock) {
+        
+//         // if (err) {
+//         //     console.log("Error denodifying script list".red, err);;
+//         //     // return;
+//         // }
+        
+    
+//         // log(util.inspect(recipe, { colors: true }));
+    
+//         var map = buildMap(recipe.partials.template);
+    
+//         if (recipe.verbose && recipe.printMap) log(util.inspect(map, { depth:10 }));
+//         log('Finished rendering');
+//         // if (recipe.reload && recipe.reload.enable && getWebsocket) {
+//         //     console.log('Sending message to server to reload page');
+//         //     getWebsocket().send(recipe.reload.msg); }
+//         // reload(recipe);
+//     // }
+    
+//     log('Cwd: '.blue + process.cwd());
+//     log('Root dir: '.blue + recipe.paths.root);
+//     return vow.promise;
+// }
 
 // if (argv.h || argv.help) {
 //     console.log([
