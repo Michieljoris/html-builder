@@ -541,13 +541,7 @@ function processPartials(partials) {
 
 function evalFile(fileName, vow) {
     var file;
-    // console.log(fileName);
-    // // var exports = require(fileName);
-    // // return exports;
-    // return require(fileName);
-    
-    try { file = fs.readFileSync(fileName, 'utf8');
-          // console.log(file);
+    try { file = fs.readFileSync(fileName, { encoding: 'utf8' });
           eval(file);
           vow.keep(exports);
         } catch (e) {
@@ -811,48 +805,6 @@ function build(arg) {
             return VOW.kept();;
         });
 }
-
-// function processBuildData(scriptBlock) {
-//     var vow = VOW.make();
-    
-//             // if (recipe.reload && recipe.reload.enable && getWebsocket) {
-//             //     console.log('Sending message to server to reload page');
-//             //     getWebsocket().send(recipe.reload.msg); }
-//             // reload(recipe);
-//             // }
-    
-    
-//     // function callback(err, scriptBlock) {
-        
-//         // if (err) {
-//         //     console.log("Error denodifying script list".red, err);;
-//         //     // return;
-//         // }
-        
-    
-//         // log(util.inspect(recipe, { colors: true }));
-    
-//         var map = buildMap(recipe.partials.template);
-    
-//         if (recipe.verbose && recipe.printMap) log(util.inspect(map, { depth:10 }));
-//         log('Finished rendering');
-//         // if (recipe.reload && recipe.reload.enable && getWebsocket) {
-//         //     console.log('Sending message to server to reload page');
-//         //     getWebsocket().send(recipe.reload.msg); }
-//         // reload(recipe);
-//     // }
-    
-//     log('Cwd: '.blue + process.cwd());
-//     log('Root dir: '.blue + recipe.paths.root);
-//     return vow.promise;
-// }
-
-// if (argv.h || argv.help) {
-//     console.log([
-//         "usage: html-builder [pathToData.js]"
-//     ].join('\n'));
-//     process.exit();
-// }
 
 exports.build = build;
 
