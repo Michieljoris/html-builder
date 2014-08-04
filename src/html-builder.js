@@ -802,6 +802,7 @@ function build(arg) {
                                  { depth:10 }));
             }
             log('Finished rendering');
+            recipe.partials.ids = recipe.partials.ids[0];
             return VOW.kept();;
         });
 }
