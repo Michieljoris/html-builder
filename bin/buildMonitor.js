@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 var argv = require('optimist').argv;
+var websocketIsOpen;
 
 if (argv.h || argv.help) {
     console.log([
@@ -120,7 +121,9 @@ function onFileEvent(ev) {
     // console.log('Watching ' + monitoredDirs.toString());
     // filemon.watch(options); 
 // } 
-
+var toggle = 0;
+var counter = 0;
+var waiting = 'waiting';
 function enableWebsocket() {
     console.log('Html-builder: Connecting to '.blue, url);
     var probe;
@@ -129,13 +132,15 @@ function enableWebsocket() {
         if (tried === 0) {
             console.log('Trying to connect to ' + url);
         }
-        else process.stdout.write('.');
-        websocket = new WebSocket(url);
-    
+        else { process.stdout.write('\b\b\b\b\b\b\b' + waiting.slice(counter) + waiting.slice(0, counter));
+               counter = (counter+1)%waiting.length;
+               toggle = 1-toggle;
+             }
+        websocket = new WebSocket(url); 
         // When the connection is open, send some data to the server
         websocket.onopen = function () {
-                
-            websocket.send('buildMonitor connected');
+            websocketIsOpen = true;
+            websocket.send('buildMonitor connec/ted');
             console.log('\nbuildMonitor connected to ' + url);
             clearTimeout(probe);
             tried = 0;
@@ -156,6 +161,7 @@ function enableWebsocket() {
         };
         
         websocket.onclose = function (e) {
+            websocketIsOpen = false;
             console.log("Connection closed..");
             probe = setInterval(function() {
                 connect();
@@ -190,8 +196,10 @@ function init() {
     
     build().when(
         function() {
-            console.log('Sending message to server to reload page');
-            websocket.send('reload');
+            if (websocketIsOpen) {
+                console.log('Sending message to server to reload page');
+                websocket.send('reload');
+            }
         },
         function(err) {
             console.log(err);
