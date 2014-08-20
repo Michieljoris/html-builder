@@ -75,8 +75,10 @@ function onFileEvent(ev) {
         build().when(
             function() {
                 // if (recipe.reload && recipe.reload.enable && getWebsocket) {
-                console.log('Sending message to server to reload page');
-                websocket.send('reload');
+                if (websocket) {
+                    console.log('Sending message to server to reload page');
+                    websocket.send('reload');
+                }
                 // }
                 // reload(recipe);
                 

@@ -24,9 +24,9 @@ module.exports.saveFile = function saveFile(pathName, str, vow){
     // console.log('Saving ' + pathName);
     try {
         fs.outputFileSync(pathName, str, 'utf8');
-        vow.keep();
+        if (vow) vow.keep();
     } catch(e) {
-        console.log(e);
+        console.log('Error in saveFile:', e);
         if (vow) vow.breek('Error writing file '+ pathName + e.toString());
     }
     return true;
