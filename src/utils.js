@@ -3,6 +3,7 @@ var crypto = require('crypto');
 var Path = require('path');
   
 module.exports.saveFile = function saveFile(pathName, str, vow){
+    
     var oldHash, newHash;
     try {
         var sum = crypto.createHash('sha1');
@@ -16,7 +17,10 @@ module.exports.saveFile = function saveFile(pathName, str, vow){
         sum.update(str);
         newHash = sum.digest('hex');
         // console.log(newHash, oldHash);
-        if (newHash === oldHash) return false;
+        if (newHash === oldHash) {
+            if (vow) vow.keep();
+            return true;
+        }
     }
     // console.log(orig.length, orig.toString());
     // console.log('-=====================================');
@@ -25,6 +29,7 @@ module.exports.saveFile = function saveFile(pathName, str, vow){
     try {
         fs.outputFileSync(pathName, str, 'utf8');
         if (vow) vow.keep();
+        
     } catch(e) {
         console.log('Error in saveFile:', e);
         if (vow) vow.breek('Error writing file '+ pathName + e.toString());

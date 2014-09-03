@@ -195,7 +195,7 @@ function init() {
     
     console.log('Watching ' + monitoredDirs.toString());
     filemon.watch(options); 
-    
+    console.log('going to build now...');
     build().when(
         function() {
             if (websocketIsOpen) {
