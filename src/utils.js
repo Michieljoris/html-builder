@@ -4,6 +4,7 @@ var Path = require('path');
   
 module.exports.saveFile = function saveFile(pathName, str, vow){
     
+        console.log('pathName', pathName);
     var oldHash, newHash;
     try {
         var sum = crypto.createHash('sha1');
@@ -16,7 +17,7 @@ module.exports.saveFile = function saveFile(pathName, str, vow){
         sum = crypto.createHash('sha1');
         sum.update(str);
         newHash = sum.digest('hex');
-        // console.log(newHash, oldHash);
+        console.log('hashes', newHash, oldHash);
         if (newHash === oldHash) {
             if (vow) vow.keep();
             return true;
@@ -44,7 +45,7 @@ function endsWith(str, trail) {
 module.exports.endsWith = endsWith;
 
 module.exports.trailWith = function trailWith(str, trail) {
-    return str ? (str + (!endsWith(str, trail) ? trail : '')) : undefined;
+    return typeof str === 'string' ? (str + (!endsWith(str, trail) ? trail : '')) : undefined;
 };
 
 module.exports.isModule = function(path) {

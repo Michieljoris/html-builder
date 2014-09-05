@@ -470,9 +470,10 @@ function render(args) {
     if (args.out) {
         // if (args.out === 'www/index.html') console.log(template);
         //TODO
-        var cachified = cachifyTemplate(template, args.cachify);
+        // var cachified = cachifyTemplate(template, args.cachify);
         // if (args.out === 'view-courses.html') console.log(template);
-        saveFile(args.root + args.pathOut + args.out, cachifyTemplate(template, args.cachify));   
+        saveFile(Path.join(args.root,  args.pathOut , args.out),
+                 cachifyTemplate(template, args.cachify));   
         str+= ' >> ' + args.out.blue;
         // log('>>' + args.out);
     }
@@ -612,9 +613,9 @@ function makePartial(name, args) {
 
 function processBlocks(partials, extras) {
     partials.scriptBlock = Array.isArray(partials.scriptBlock) ?
-        partials.scriptBlock : [partials.scriptBlock];
+        partials.scriptBlock : (partials.scriptBlock ? [partials.scriptBlock] : []);
     partials.linkBlock = Array.isArray(partials.linkBlock) ?
-        partials.linkBlock : [partials.linkBlock];
+        partials.linkBlock : (partials.linkBlock ? [partials.linkBlock] : []);
     
     var extraLinkBlock;
     partials.linkBlock.some(function(lb) {
@@ -662,13 +663,11 @@ function retrieveRecipe(data) {
 
 function initPaths(buildData) {
     var paths = buildData.paths = buildData.paths || {};
-    paths.www = paths.www || 'www';
-    paths.root = trailWith(paths.root || process.cwd(), '/');
-    paths.partials = trailWith( paths.partials || 'build', '/');
-    // paths.monitor = trailWith( paths.monitor || 'build', '/');
-    paths.out = Path.join(paths.www , trailWith( paths.out || 'built', '/'));
-    
-    paths.js = Path.join(paths.www , trailWith( paths.js || 'js', '/'));
+    paths.www = typeof paths.www === 'undefined' ?  'www' : paths.www;
+    paths.root = trailWith(typeof paths.root  === 'undefined' ? process.cwd() : paths.root, '/');
+    paths.partials = trailWith( typeof paths.partials === 'undefined' ? 'build' : paths.partials, '/');
+    paths.out = Path.join(paths.www , trailWith( typeof paths.out === 'undefined' ? 'built' : paths.out, '/'));
+    paths.js = Path.join(paths.www , trailWith( typeof paths.js  === 'undefined' ? 'js' : paths.js, '/'));
 }
 
 function initBuilders(buildData) {
@@ -777,8 +776,11 @@ function build(arg) {
             return VOW.kept();
         })
         .when(function() {
-            return demodularify(recipe.partials.scriptBlock,
-                                recipe.paths.www);
+            
+            
+            return recipe.partials.scriptBlock.length ?
+                demodularify(recipe.partials.scriptBlock, recipe.paths.www) :
+                VOW.kept([]);
         })
         .when(function(scriptBlock) {
             recipe.partials.scriptBlock = scriptBlock;
@@ -796,6 +798,7 @@ function build(arg) {
             return VOW.kept();
         })
         .when(function() {
+            
             if (recipe.verbose && recipe.printMap) {
                 log(util.inspect(
                     buildMap(recipe.partials.template),
