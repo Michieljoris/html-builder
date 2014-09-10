@@ -716,6 +716,7 @@ function concatenate(recipe) {
             recipe.partials.linkBlock =
                 concat(recipe.paths, recipe.partials.linkBlock, '.css');
         }
+            log('Concatenating all js and css, done');
     //TODO: catch errors in concat and breek the vow.
     return VOW.kept();
 }
@@ -735,7 +736,7 @@ function processCachify(recipe) {
         cachify = (function(pathName) {
             return stamp(recipe.cachify.prefix, pathName, recipe.cachify.exclude);
         });
-        recipe.cachify.list =
+        if (recipe.routes) recipe.cachify.list =
             recipe.cachify.list.concat(recipe.routes.map(function(r) { return r[1]; }));
         defaultPartials.cachify =
             function() { return makeCachifyPartial(recipe.cachify.list,
@@ -793,7 +794,7 @@ function build(arg) {
                 processCachify(recipe);
                 processPartials(recipe.partials || {});
             } catch(e) {
-                return VOW.broken(e);
+                return VOW.broken({ error: e, msg: 'cachify or processPartials..'});
             }
             return VOW.kept();
         })

@@ -47,7 +47,8 @@ function concat(paths, block, bundle) {
 }
 
 module.exports.concat = function (paths, blocks, ext) {
-    if (blocks) {
+    console.log('concatenating..', ext);
+    if (blocks && blocks.length) {
         blocks = Array.isArray(blocks) ? blocks : [blocks];
         blocks = blocks.map(function(block) {
             var mixed;
