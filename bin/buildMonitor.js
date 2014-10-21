@@ -10,6 +10,7 @@ if (argv.h || argv.help) {
     process.exit();
 }
 
+var recipe = argv.r || 'recipe.js';
 var url = argv.s; //|| 'ws://localhost:8080';
 var dir = argv.d || process.cwd() + '/build/';
 var scripts = argv.j || process.cwd() + '/www/scripts/';
@@ -17,7 +18,9 @@ var css = argv.c || process.cwd() + '/www/css/';
 var reload = argv.r;
 if (reload) reload = typeof reload === 'boolean' ? "reload" : false;
 
-var recipeFileName = dir + 'recipe.js';
+
+var recipeFileName = recipe;
+console.log(recipeFileName);
 
 var filemon = require('filemonitor');
 //don't forget to install inotify-tools for filemonitor!!!
@@ -72,7 +75,7 @@ function onFileEvent(ev) {
         // });
             
         // build(function() { return websocket; });
-        build().when(
+        build(recipe).when(
             function() {
                 // if (recipe.reload && recipe.reload.enable && getWebsocket) {
                 if (websocket) {
@@ -196,7 +199,7 @@ function init() {
     console.log('Watching ' + monitoredDirs.toString());
     filemon.watch(options); 
     console.log('going to build now...');
-    build().when(
+    build(recipe).when(
         function() {
             if (websocketIsOpen) {
                 console.log('Sending message to server to reload page');

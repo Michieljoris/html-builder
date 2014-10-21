@@ -93,6 +93,7 @@ module.exports = {
 	"plates": "0.4.8",
 	"htmlparser2": "~2.5.2",
 	"node-markdown": "0.1.x",
+	"org": "0.0.*",
 	"filemonitor": "0.1.x",
 	"optimist": "0.4.x",
 	"colors": "*",

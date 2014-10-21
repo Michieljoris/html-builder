@@ -9,6 +9,7 @@ var util = require('util');
 var fs = require('fs');
 var htmlFormatter = require('./html-formatter.js');
 var md = require("node-markdown").Markdown;
+var org = require("./org-to-html");
 // var sys = require('sys');
 // var exec = require('child_process').exec;
 var crypto = require('crypto');
@@ -113,12 +114,14 @@ function getPartial(partialsPath, name) {
     partialName = name;
     // log('searching for partial on disk');
     var isMarkdown = endsWith(name, '.md') || endsWith(name, '.markdown');
+    var isOrgFile = endsWith(name, '.org');
     var isJs = endsWith(name, '.js');
-    if (!isJs && !isMarkdown) name = trailWith(name, '.html');
+    if (!isJs && !isMarkdown && !isOrgFile) name = trailWith(name, '.html');
     try {
         path = partialsPath + name;
         partial = fs.readFileSync(path, 'utf8');
         if (isMarkdown) partial = md(partial);
+        else if (isOrgFile) partial = org(partial);
         // console.log(partial);
         //bloody IE panics and goes into quirk mode if there's anything before the doctype html tag!!!
         //so make sure for IE compatibility to have as the basic page's first 15 characters:<doctype html> 
@@ -542,10 +545,12 @@ function processPartials(partials) {
 
 function evalFile(fileName, vow) {
     var file;
-    try { file = fs.readFileSync(fileName, { encoding: 'utf8' });
-          eval(file);
-          vow.keep(exports);
-        } catch (e) {
+    try {
+        console.log('Recipe: '.blue + fileName);
+        file = fs.readFileSync(fileName, { encoding: 'utf8' });
+        eval(file);
+        vow.keep(exports);
+    } catch (e) {
             console.log('Error reading data file: '.red, e);
             vow.breek('Error reading data file: ' + e.toString());
         }
