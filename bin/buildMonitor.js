@@ -10,7 +10,7 @@ if (argv.h || argv.help) {
     process.exit();
 }
 
-var recipe = argv.r || 'recipe.js';
+var recipe = argv.r || 'build/recipe.js';
 var url = argv.s; //|| 'ws://localhost:8080';
 var dir = argv.d || process.cwd() + '/build/';
 var scripts = argv.j || process.cwd() + '/www/scripts/';
