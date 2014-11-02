@@ -44,6 +44,7 @@ module.exports = function(orgCode) {
         suppressSubScriptHandling: false,
         suppressAutoLink: false
     });
+    console.log(orgHTMLDocument);
     var contentHtml = orgHTMLDocument.contentHTML;
     var tocHtml = orgHTMLDocument.tocHTML;
     
@@ -52,8 +53,8 @@ module.exports = function(orgCode) {
     // var meta = pre ? contentHtml.slice(0, pre.end) : '';
     // var content = pre ? contentHtml.slice(pre.end) : contentHtml;
     // return orgHTMLDocument;
-    // return tocHtml + contentHtml;
-    return contentHtml;
+    return '<div id="toc">' + tocHtml + '</div>' + contentHtml;
+    // return contentHtml;
     
     // return meta + '\n' + tocHtml + '\n' + contentHtml;
 };
