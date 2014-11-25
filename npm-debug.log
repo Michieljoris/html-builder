@@ -1,0 +1,215 @@
+0 info it worked if it ends with ok
+1 verbose cli [ '/home/michieljoris/bin/node',
+1 verbose cli   '/home/michieljoris/bin/npm',
+1 verbose cli   'publish' ]
+2 info using npm@1.4.9
+3 info using node@v0.10.28
+4 verbose node symlink /home/michieljoris/bin/node
+5 verbose publish [ '.' ]
+6 verbose cache add [ '.', null ]
+7 verbose cache add name=undefined spec="." args=[".",null]
+8 verbose parsed url { protocol: null,
+8 verbose parsed url   slashes: null,
+8 verbose parsed url   auth: null,
+8 verbose parsed url   host: null,
+8 verbose parsed url   port: null,
+8 verbose parsed url   hostname: null,
+8 verbose parsed url   hash: null,
+8 verbose parsed url   search: null,
+8 verbose parsed url   query: null,
+8 verbose parsed url   pathname: '.',
+8 verbose parsed url   path: '.',
+8 verbose parsed url   href: '.' }
+9 silly lockFile 3a52ce78- .
+10 verbose lock . /home/michieljoris/.npm/3a52ce78-.lock
+11 verbose tar pack [ '/home/michieljoris/tmp/npm-24962--Y8hA7fU/1416881775690-0.49721377482637763/tmp.tgz',
+11 verbose tar pack   '.' ]
+12 verbose tarball /home/michieljoris/tmp/npm-24962--Y8hA7fU/1416881775690-0.49721377482637763/tmp.tgz
+13 verbose folder .
+14 info prepublish html-builder@0.2.29
+15 silly lockFile 1f1177db-tar tar://.
+16 verbose lock tar://. /home/michieljoris/.npm/1f1177db-tar.lock
+17 silly lockFile 9e6fd5bc-5690-0-49721377482637763-tmp-tgz tar:///home/michieljoris/tmp/npm-24962--Y8hA7fU/1416881775690-0.49721377482637763/tmp.tgz
+18 verbose lock tar:///home/michieljoris/tmp/npm-24962--Y8hA7fU/1416881775690-0.49721377482637763/tmp.tgz /home/michieljoris/.npm/9e6fd5bc-5690-0-49721377482637763-tmp-tgz.lock
+19 silly lockFile 1f1177db-tar tar://.
+20 silly lockFile 1f1177db-tar tar://.
+21 silly lockFile 9e6fd5bc-5690-0-49721377482637763-tmp-tgz tar:///home/michieljoris/tmp/npm-24962--Y8hA7fU/1416881775690-0.49721377482637763/tmp.tgz
+22 silly lockFile 9e6fd5bc-5690-0-49721377482637763-tmp-tgz tar:///home/michieljoris/tmp/npm-24962--Y8hA7fU/1416881775690-0.49721377482637763/tmp.tgz
+23 verbose tar unpack /home/michieljoris/tmp/npm-24962--Y8hA7fU/1416881775690-0.49721377482637763/tmp.tgz
+24 silly lockFile ee08f7ea--npm-html-builder-0-2-29-package tar:///home/michieljoris/.npm/html-builder/0.2.29/package
+25 verbose lock tar:///home/michieljoris/.npm/html-builder/0.2.29/package /home/michieljoris/.npm/ee08f7ea--npm-html-builder-0-2-29-package.lock
+26 silly lockFile 9e6fd5bc-5690-0-49721377482637763-tmp-tgz tar:///home/michieljoris/tmp/npm-24962--Y8hA7fU/1416881775690-0.49721377482637763/tmp.tgz
+27 verbose lock tar:///home/michieljoris/tmp/npm-24962--Y8hA7fU/1416881775690-0.49721377482637763/tmp.tgz /home/michieljoris/.npm/9e6fd5bc-5690-0-49721377482637763-tmp-tgz.lock
+28 silly gunzTarPerm modes [ '755', '644' ]
+29 silly gunzTarPerm extractEntry package.json
+30 silly gunzTarPerm modified mode [ 'package.json', 488, 492 ]
+31 silly gunzTarPerm extractEntry .npmignore
+32 silly gunzTarPerm modified mode [ '.npmignore', 488, 492 ]
+33 silly gunzTarPerm extractEntry README.md
+34 silly gunzTarPerm modified mode [ 'README.md', 488, 492 ]
+35 silly gunzTarPerm extractEntry example-recipe.js
+36 silly gunzTarPerm modified mode [ 'example-recipe.js', 488, 492 ]
+37 silly gunzTarPerm extractEntry package.js
+38 silly gunzTarPerm modified mode [ 'package.js', 488, 492 ]
+39 silly gunzTarPerm extractEntry recipe.js
+40 silly gunzTarPerm modified mode [ 'recipe.js', 488, 492 ]
+41 silly gunzTarPerm extractEntry bin/build.js
+42 silly gunzTarPerm modified mode [ 'bin/build.js', 488, 492 ]
+43 silly gunzTarPerm extractEntry bin/buildMonitor.js
+44 silly gunzTarPerm modified mode [ 'bin/buildMonitor.js', 488, 492 ]
+45 silly gunzTarPerm extractEntry bin/filemonitor.js
+46 silly gunzTarPerm modified mode [ 'bin/filemonitor.js', 488, 492 ]
+47 silly gunzTarPerm extractEntry bin/docs
+48 silly gunzTarPerm modified mode [ 'bin/docs', 488, 492 ]
+49 silly gunzTarPerm extractEntry docs/docco.css
+50 silly gunzTarPerm modified mode [ 'docs/docco.css', 488, 492 ]
+51 silly gunzTarPerm extractEntry docs/example-recipe.html
+52 silly gunzTarPerm modified mode [ 'docs/example-recipe.html', 488, 492 ]
+53 silly gunzTarPerm extractEntry docs/public/fonts/aller-bold.eot
+54 silly gunzTarPerm modified mode [ 'docs/public/fonts/aller-bold.eot', 488, 492 ]
+55 silly gunzTarPerm extractEntry docs/public/fonts/aller-bold.ttf
+56 silly gunzTarPerm modified mode [ 'docs/public/fonts/aller-bold.ttf', 488, 492 ]
+57 silly gunzTarPerm extractEntry docs/public/fonts/aller-bold.woff
+58 silly gunzTarPerm modified mode [ 'docs/public/fonts/aller-bold.woff', 488, 492 ]
+59 silly gunzTarPerm extractEntry docs/public/fonts/aller-light.eot
+60 silly gunzTarPerm modified mode [ 'docs/public/fonts/aller-light.eot', 488, 492 ]
+61 silly gunzTarPerm extractEntry docs/public/fonts/aller-light.ttf
+62 silly gunzTarPerm modified mode [ 'docs/public/fonts/aller-light.ttf', 488, 492 ]
+63 silly gunzTarPerm extractEntry docs/public/fonts/aller-light.woff
+64 silly gunzTarPerm modified mode [ 'docs/public/fonts/aller-light.woff', 488, 492 ]
+65 silly gunzTarPerm extractEntry docs/public/fonts/novecento-bold.eot
+66 silly gunzTarPerm modified mode [ 'docs/public/fonts/novecento-bold.eot', 488, 492 ]
+67 silly gunzTarPerm extractEntry docs/public/fonts/novecento-bold.ttf
+68 silly gunzTarPerm modified mode [ 'docs/public/fonts/novecento-bold.ttf', 488, 492 ]
+69 silly gunzTarPerm extractEntry docs/public/fonts/novecento-bold.woff
+70 silly gunzTarPerm modified mode [ 'docs/public/fonts/novecento-bold.woff', 488, 492 ]
+71 silly gunzTarPerm extractEntry docs/public/stylesheets/normalize.css
+72 silly gunzTarPerm modified mode [ 'docs/public/stylesheets/normalize.css', 488, 492 ]
+73 silly gunzTarPerm extractEntry tryout/test-checksum.js
+74 silly gunzTarPerm modified mode [ 'tryout/test-checksum.js', 488, 492 ]
+75 silly gunzTarPerm extractEntry tryout/index.html
+76 silly gunzTarPerm modified mode [ 'tryout/index.html', 488, 492 ]
+77 silly gunzTarPerm extractEntry tryout/jpg.jpg
+78 silly gunzTarPerm modified mode [ 'tryout/jpg.jpg', 488, 492 ]
+79 silly gunzTarPerm extractEntry tryout/pdf.pdf
+80 silly gunzTarPerm modified mode [ 'tryout/pdf.pdf', 488, 492 ]
+81 silly gunzTarPerm extractEntry html-builder.org
+82 silly gunzTarPerm modified mode [ 'html-builder.org', 488, 492 ]
+83 silly gunzTarPerm extractEntry src/concat.js
+84 silly gunzTarPerm modified mode [ 'src/concat.js', 488, 492 ]
+85 silly gunzTarPerm extractEntry src/html-builder.js
+86 silly gunzTarPerm modified mode [ 'src/html-builder.js', 488, 492 ]
+87 silly gunzTarPerm extractEntry src/html-formatter.js
+88 silly gunzTarPerm modified mode [ 'src/html-formatter.js', 488, 492 ]
+89 silly gunzTarPerm extractEntry src/org-to-html.js
+90 silly gunzTarPerm modified mode [ 'src/org-to-html.js', 488, 492 ]
+91 silly gunzTarPerm extractEntry src/utils.js
+92 silly gunzTarPerm modified mode [ 'src/utils.js', 488, 492 ]
+93 silly gunzTarPerm extractEntry src/test/qdn.js
+94 silly gunzTarPerm modified mode [ 'src/test/qdn.js', 488, 492 ]
+95 silly gunzTarPerm extractEntry src/test/scripts/denodify.js
+96 silly gunzTarPerm modified mode [ 'src/test/scripts/denodify.js', 488, 492 ]
+97 silly gunzTarPerm extractEntry src/www/router.js
+98 silly gunzTarPerm modified mode [ 'src/www/router.js', 488, 492 ]
+99 silly gunzTarPerm extractEntry src/www/scripts/denodify.js
+100 silly gunzTarPerm modified mode [ 'src/www/scripts/denodify.js', 488, 492 ]
+101 silly gunzTarPerm extractEntry src/wwwpath/scripts/denodify.js
+102 silly gunzTarPerm modified mode [ 'src/wwwpath/scripts/denodify.js', 488, 492 ]
+103 silly gunzTarPerm extractEntry test/b1.js
+104 silly gunzTarPerm modified mode [ 'test/b1.js', 488, 492 ]
+105 silly gunzTarPerm extractEntry test/c.js
+106 silly gunzTarPerm modified mode [ 'test/c.js', 488, 492 ]
+107 silly gunzTarPerm extractEntry test/myblock.js
+108 silly gunzTarPerm modified mode [ 'test/myblock.js', 488, 492 ]
+109 silly gunzTarPerm extractEntry test/qdn.js
+110 silly gunzTarPerm modified mode [ 'test/qdn.js', 488, 492 ]
+111 silly gunzTarPerm extractEntry test/qnd.js
+112 silly gunzTarPerm modified mode [ 'test/qnd.js', 488, 492 ]
+113 silly gunzTarPerm extractEntry test/modules/m1.js
+114 silly gunzTarPerm modified mode [ 'test/modules/m1.js', 488, 492 ]
+115 silly gunzTarPerm extractEntry test/modules/m2.js
+116 silly gunzTarPerm modified mode [ 'test/modules/m2.js', 488, 492 ]
+117 silly gunzTarPerm extractEntry test/modules/m3.js
+118 silly gunzTarPerm modified mode [ 'test/modules/m3.js', 488, 492 ]
+119 silly gunzTarPerm extractEntry test/modules/m4.js
+120 silly gunzTarPerm modified mode [ 'test/modules/m4.js', 488, 492 ]
+121 silly gunzTarPerm extractEntry test/modules/r1.js
+122 silly gunzTarPerm modified mode [ 'test/modules/r1.js', 488, 492 ]
+123 silly gunzTarPerm extractEntry test/modules/r2.js
+124 silly gunzTarPerm modified mode [ 'test/modules/r2.js', 488, 492 ]
+125 silly gunzTarPerm extractEntry test/modules/r3.js
+126 silly gunzTarPerm modified mode [ 'test/modules/r3.js', 488, 492 ]
+127 silly gunzTarPerm extractEntry test/modules/r4.js
+128 silly gunzTarPerm modified mode [ 'test/modules/r4.js', 488, 492 ]
+129 silly gunzTarPerm extractEntry test/myblock.bundle
+130 silly gunzTarPerm modified mode [ 'test/myblock.bundle', 488, 492 ]
+131 silly gunzTarPerm extractEntry test/test_concat/a.js
+132 silly gunzTarPerm modified mode [ 'test/test_concat/a.js', 488, 492 ]
+133 silly gunzTarPerm extractEntry test/test_concat/b.js
+134 silly gunzTarPerm modified mode [ 'test/test_concat/b.js', 488, 492 ]
+135 silly gunzTarPerm extractEntry test/test_concat/c.js
+136 silly gunzTarPerm modified mode [ 'test/test_concat/c.js', 488, 492 ]
+137 silly gunzTarPerm extractEntry test/test_concat/myblock.js
+138 silly gunzTarPerm modified mode [ 'test/test_concat/myblock.js', 488, 492 ]
+139 silly gunzTarPerm extractEntry test/test_concat/b.coffee
+140 silly gunzTarPerm modified mode [ 'test/test_concat/b.coffee', 488, 492 ]
+141 silly gunzTarPerm extractEntry test/test_concat/mixedBlock.bundle
+142 silly gunzTarPerm modified mode [ 'test/test_concat/mixedBlock.bundle', 488, 492 ]
+143 silly gunzTarPerm extractEntry test/test_concat/modules/m1.js
+144 silly gunzTarPerm modified mode [ 'test/test_concat/modules/m1.js', 488, 492 ]
+145 silly lockFile ee08f7ea--npm-html-builder-0-2-29-package tar:///home/michieljoris/.npm/html-builder/0.2.29/package
+146 silly lockFile ee08f7ea--npm-html-builder-0-2-29-package tar:///home/michieljoris/.npm/html-builder/0.2.29/package
+147 silly lockFile 9e6fd5bc-5690-0-49721377482637763-tmp-tgz tar:///home/michieljoris/tmp/npm-24962--Y8hA7fU/1416881775690-0.49721377482637763/tmp.tgz
+148 silly lockFile 9e6fd5bc-5690-0-49721377482637763-tmp-tgz tar:///home/michieljoris/tmp/npm-24962--Y8hA7fU/1416881775690-0.49721377482637763/tmp.tgz
+149 silly lockFile 3a52ce78- .
+150 silly lockFile 3a52ce78- .
+151 silly publish { name: 'html-builder',
+151 silly publish   description: 'Don\'t write html, use a layout and and populate it with partials.',
+151 silly publish   homepage: 'https://github.com/michieljoris/html-builder',
+151 silly publish   keywords: [ 'html', 'template', 'partials' ],
+151 silly publish   repository:
+151 silly publish    { type: 'git',
+151 silly publish      url: 'https://github.com/michieljoris/html-builder.git' },
+151 silly publish   author:
+151 silly publish    { name: 'Michiel van Oosten',
+151 silly publish      email: 'mail@axion5.net',
+151 silly publish      url: 'http://www.axion5.net/' },
+151 silly publish   licenses:
+151 silly publish    [ { type: 'MIT',
+151 silly publish        url: 'http://github.com/michieljoris/firstdoor/blob/master/LICENSE.txt' } ],
+151 silly publish   main: 'src/html-builder.js',
+151 silly publish   engines: { node: '>= 0.8.x' },
+151 silly publish   dependencies:
+151 silly publish    { plates: '0.4.8',
+151 silly publish      htmlparser2: '~2.5.2',
+151 silly publish      'node-markdown': '0.1.x',
+151 silly publish      org: '0.0.*',
+151 silly publish      filemonitor: '0.1.x',
+151 silly publish      optimist: '0.4.x',
+151 silly publish      colors: '*',
+151 silly publish      cheerio: '0.13.x',
+151 silly publish      extend: '*',
+151 silly publish      denodify: '*',
+151 silly publish      dougs_vow: '*',
+151 silly publish      ws: '0.4.*' },
+151 silly publish   devDependencies: { 'fs-extra': '0.8.x', docco: '*' },
+151 silly publish   private: false,
+151 silly publish   scripts:
+151 silly publish    { start: 'node ./server/server.js',
+151 silly publish      docs: 'node node_modules/.bin/docco example-recipe.js' },
+151 silly publish   version: '0.2.29',
+151 silly publish   readme: 'html-builder\n-----------\n\nCompleteyly hacked together as requirements came up, but it works!\n\nAdded websocket client. When finished building it will send a reload msg to the\nserver to instruct the server to send a reload msg to the browser.\n\nUse nodejs modules in the browser! No browserify!\n\nIt now concatenates your css and js files in production mode and adds a cache\nstamp to all static resources, to work together with\n[bb-server](github.com/michieljoris/bb-server).\n\nThe main file html-builder.js exports one function: \'build\'. This\nfunction takes a dataFileName. If it is not given it will look for\nbuild/recipe.js in the current working directory.\n\n\nIf the function build is called it will build a site using the info\ngiven in the recipe.\n\nbuildMonitor.js is a command line utility that monitors and builds a\nsite using html-builder whenever there are changes in the directory\ngiven as its first argument. If no argument is given it monitors the\n./build directory. It looks for recipe.js in the monitored directory\nto pass on to html-builder.\n\nThe recipe.js file needs to export an object describing the site.\n\n\tvar exports = {\n\t\t[...]\n\t}\n\t\nWhat follows is a list of properties that can be defined on the\nexported object:\n\n* verbose: boolean   \nVerbose output to the console\n* prettyPrintHtml: boolean    \nWhether to generate pretty formatted html (buggy)\n* paths: object    \n  * root: string    \n\tbase directory\n  * partials: string    \n  where to find partials relative to root, can be overridden per\n  template\n  * out: string   \n  where to save produced files\n  * js: string    \n\twhere to save produced js files\n* routes: array    \n list of route descriptions for angular.js each of the format:\n [ path, file, controller]\n* partials: object    \n  See below \n  \nThe html-builder builds one or more html files by nested insertion of\nother html fragments or files. Every html fragment/file apart from\ntoplevel html files need to be given an id. By referring to these ids\ninside the fragments/files the html-builder can build the toplevel\nhtml files, using mappings listed in partials.\n\nA fragment is called a partial, and the listing of partials is the\nmain part of the recipe.js file. There is no dependency management so\npartials need to be defined before they can be used in other\npartials. \n\nThe main types of partials are:\n\n* ids\n  Plain string literals. These get inserted as is.\n* metaBlock    \n  An easy way to build a metablock\n* linkBlock    \n  Listing of css files\n* scriptBlock    \nDefinition of one or more script blocks\n* slideShow    \n  listing of definition of slide shows\n* menu    \nDefinition of one or more menus\n* template    \n\nEvery template can have its own **id**, and needs a **src**. The src\ncan be a file on disk or an id of a previously defined partial. A\ntemplate can write its result to disk under the name given to the\n**out** property. Finally the **mapping** property of a template maps\nids found in the source to partials defined earlier and inserts them.\n\nPartials can be referred to by their id or by giving the name of\na file on a disk. The ids in the source need to be postfixed with the\n**tagIdPostfix** (by default --). This can be set site wide or overridden\nper template. The location of **partials** on disk is also set site wide,\nbut can be also overridden per template. A mapping from an id can\nrefer to one partial or an array of partials. When an array they will\nbe inserted one after the other.\n\nFor an example of a complete recipe.js see my repo [js-project](http://github.com/Michieljoris/js-project)\n\nOr checkout the [documentation](http://rawgithub.com/Michieljoris/html-builder/master/docs/example-recipe.html)\n\nI wrote this thing because I don\'t want to write html if I can help\nit. Especially not repetitive html, such as listings of source or css\nfiles. Html is unreadable, especially if the page gets large because\nof its verbosity, so I wanted to keep it manageable by breaking it\nup. I can now work on a part of a site, or a little corner of it and\nevery time I save the fragment the site gets rebuilt and reloaded in\nthe browser using live page or moz-reload in emacs or similar. The\nonly thing is it gets a bit confusing which partial contains which\nother partial(s). Maybe I should draw a map of it. That should help.\n\nThe resulting html doesn\'t look too pretty though. You could achieve\nthe similar result by using a templating library such as handlebars\netc but these build the result in the browser, not necessary\nalways. Plus I don\'t like the magic. With this builder I am in control\nof what happens.\n\nWhat does appeal is the new html5 custom elements and html\nimports. Combined with ractive.js and possibly postal.js, both easily\nunderstood libraries, it might be possible to put something together I\ncan use in the future instead of this html-builder, dropping angular\n(way too much magic..).\n  \n\n',
+151 silly publish   readmeFilename: 'README.md',
+151 silly publish   bugs: { url: 'https://github.com/michieljoris/html-builder/issues' },
+151 silly publish   _id: 'html-builder@0.2.29',
+151 silly publish   _shasum: 'cfdcba3db8fd79cb520ee432daaa963e30ab7dc8',
+151 silly publish   _from: '.' }
+152 error need auth auth and email required for publishing
+152 error need auth You need to authorize this machine using `npm adduser`
+153 error System Linux 3.13.0-32-generic
+154 error command "/home/michieljoris/bin/node" "/home/michieljoris/bin/npm" "publish"
+155 error cwd /media/michieljoris/d5099508-7d17-4aea-ac80-ac38100b9447/mysrc/javascript/html-builder
+156 error node -v v0.10.28
+157 error npm -v 1.4.9
+158 error code ENEEDAUTH
+159 verbose exit [ 1, true ]
