@@ -49,5 +49,5 @@
     "start": "node ./server/server.js",
     "docs": "node node_modules/.bin/docco example-recipe.js"
   },
-  "version": "0.2.29"
+  "version": "0.2.30"
 }
