@@ -44,7 +44,7 @@ module.exports = function(orgCode) {
         suppressSubScriptHandling: false,
         suppressAutoLink: false
     });
-    console.log(orgHTMLDocument);
+    // console.log(orgHTMLDocument);
     var contentHtml = orgHTMLDocument.contentHTML;
     var tocHtml = orgHTMLDocument.tocHTML;
     
